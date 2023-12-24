@@ -17,7 +17,7 @@ export default function SearchFeed() {
             // console.log(data)
             setVideos(data.items)
         }
-        return () => getData()
+         getData()
     }, [ searchTerm ])
     return (
         <Box p={2} sx={{ overflowY: 'auto', height: '90vh', flex: 2 }}>

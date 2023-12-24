@@ -23,8 +23,7 @@ export default function ChannelDetail() {
             setVideos(vid.items)
 
         }
-
-        return () => getdata()
+        getdata()
     }, [ id ])
     return (
         <Box minHeight='95vh'>

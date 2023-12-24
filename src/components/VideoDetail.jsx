@@ -25,7 +25,7 @@ export default function VideoDetail() {
             const vid = await getvideo.json();
             setVideos(vid.items)
         }
-        return () => fetchVideo()
+       fetchVideo()
     }, [ id ])
     if (!videoDetail?.snippet) return 'Loading ...'
     const { snippet: { title, channelId, channelTitle }, statistics: { viewCount, likeCount }

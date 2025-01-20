@@ -1,35 +1,67 @@
-import { Card, CardContent, CardMedia, Typography } from "@mui/material";
+import { Box, Card, CardContent, CardMedia, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
+import { CheckCircle } from "@mui/icons-material";
 
-export default function ChannelCard({ channelDetail }) {
+export default function ChannelCard({ channelDetail, marginTop }) {
     return (
-        <Card sx={{ width: { md: '300px', xs: '100%' } }}>
-            <Link to={`/channel/${channelDetail?.snippet?.channelId}`}>
-                <CardMedia
-                    image={channelDetail?.snippet?.thumbnails?.default?.url}
-                    sx={{ width: { md: '300px', xs: '100%' }, height: 270 ,objectFit:"contain"}}
-                >
-                </CardMedia>
+        <Box sx={{
+            boxShadow: 'none',
+            borderRadius: '20px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: { xs: '356px', md: '320px' },
+            height: '326px',
+            margin: 'auto',
+            marginTop: marginTop
+        }}>
+            <Link to={`/channel/${channelDetail?.id?.channelId}`}>
+                <CardContent sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    textAlign: 'center',
+                    color: '#fff',
+                    padding: '20px'
+                }}>
+                    <CardMedia
+                        image={channelDetail?.snippet?.thumbnails?.high?.url}
+                        alt={channelDetail?.snippet?.title}
+                        sx={{
+                            borderRadius: '50%',
+                            height: '180px',
+                            width: '180px',
+                            mb: 2,
+                            border: '1px solid #e3e3e3',
+                            margin: 'auto'
+                        }}
+                    />
+                    <Typography variant="h6" sx={{
+                        color: '#fff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '5px'
+                    }}>
+                        {channelDetail?.snippet?.title}
+                        <CheckCircle sx={{ fontSize: '14px', color: 'gray', ml: '5px' }} />
+                    </Typography>
+                    {channelDetail?.statistics?.subscriberCount && (
+                        <Typography sx={{ color: 'gray' }}>
+                            {parseInt(channelDetail?.statistics?.subscriberCount).toLocaleString('en-US')} Subscribers
+                        </Typography>
+                    )}
+                    <Typography variant="body2" color="gray" sx={{ mt: 1, textAlign: 'center', maxWidth: '300px' }}>
+                        {channelDetail?.snippet?.description?.slice(0, 100)}...
+                    </Typography>
+                </CardContent>
             </Link>
-            <CardContent sx={{ backgroundColor: '#1e1e1e', height: '108px', width: { md: '320px', xs: '100%' } }}>
-
-                <Typography
-                    variant="h3" fontWeight='bold'
-                    color='#fff'
-                >
-                    {channelDetail?.snippet?.title.slice(0, 60)}
-                </Typography>
-
-            </CardContent>
-        </Card >
-
-
-    )
+        </Box>
+    );
 }
+
 ChannelCard.propTypes = {
-    channelDetail: PropTypes.any,
-    snippet: PropTypes.any,
-    items: PropTypes.any
-
-}
+    channelDetail: PropTypes.object.isRequired,
+    marginTop: PropTypes.string
+};

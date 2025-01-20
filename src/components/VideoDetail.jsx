@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import ReactPlayer from "react-player";
 import { Link, useParams } from "react-router-dom"
 import Videos from './Videos'
+import Comments from './Comments'
 const key = import.meta.env.VITE_RAPID_API_YOUTUBE_KEY
 
 
@@ -16,14 +17,18 @@ export default function VideoDetail() {
     const id = params.videoId
     useEffect(() => {
         const fetchVideo = async () => {
-            const response = await fetch(`https://youtube-v31.p.rapidapi.com/videos?part=snippet,statistics,contentDetails&id=${id}&rapidapi-key=${key}`)
-            const data = await response.json()
-            // console.log(data?.items)
-            setVideoDetail(data?.items[ 0 ])
+            try {
+                const response = await fetch(`https://youtube-v31.p.rapidapi.com/videos?part=snippet,statistics,contentDetails&id=${id}&rapidapi-key=${key}`)
+                const data = await response.json()
+                // console.log(data?.items)
+                setVideoDetail(data?.items[ 0 ])
 
-            const getvideo = await fetch(`https://youtube-v31.p.rapidapi.com/search?part=snippet&relatedToVideoId=${id}&type=video&rapidapi-key=aae2ee2ccbmshf279c85ae14c4d3p1b6ad4jsn070466eba614`)
-            const vid = await getvideo.json();
-            setVideos(vid.items)
+                const relatedResponse = await fetch(`https://youtube-v31.p.rapidapi.com/search?part=snippet&relatedToVideoId=${id}&type=video&rapidapi-key=${key}`)
+                const relatedData = await relatedResponse.json()
+                setVideos(relatedData.items)
+            } catch (error) {
+                console.error("Error fetching video details:", error)
+            }
         }
        fetchVideo()
     }, [ id ])
@@ -32,7 +37,7 @@ export default function VideoDetail() {
     } = videoDetail
     return (
         <>
-            <Box minHeight='95vh'>
+            <Box minHeight='95vh' sx={{ paddingTop: '80px' }}>
                 <Stack direction={{ xs: 'column', md: 'row' }}>
                     <Box flex={1}>
                         <Box sx={{ width: '100%', position: 'sticky', top: '86px' }}>
@@ -62,6 +67,7 @@ export default function VideoDetail() {
                                     {/* tolocaleString( ) used to make numerical value readable */}
                                 </Stack>
                             </Stack>
+                            <Comments videoId={id} />
                         </Box>
                     </Box>
                     <Box px={2} py={{ md: 1, xs: 5 }} justifyContent='center' alignItems='center'>

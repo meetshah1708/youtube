@@ -1,31 +1,31 @@
 import PropTypes from "prop-types"
-import { Box, Stack } from "@mui/material"
+import { Box, Grid } from "@mui/material"
 import VideoCard from "./VideoCard"
 import ChannelCard from "./ChannelCard"
+import SkeletonCard from "./SkeletonCard"
 
-function Videos({ videos }) {
+function Videos({ videos, isLoading }) {
     return (
-        <Stack
-            direction='row'
-            flexWrap='wrap'
-            justifyContent="start"
-            gap={2}
-        >
-            {videos && videos.map((item, idx) => {   //cannot read properties of undefined map --> videos&& (if there is any null value then)
-                return (
-                    <Box key={idx}>
-                        {item.id.videoId && <VideoCard video={item} />}
-                        {item.snippet.ChannelId && <ChannelCard channelDetail={item} />}
-                    </Box>
-                )
-            }
-
-
+        <Grid container spacing={2} sx={{ padding: '20px 0' }}>
+            {isLoading ? (
+                Array.from({ length: 8 }).map((_, idx) => (
+                    <Grid item xs={12} sm={6} md={4} lg={3} key={idx}>
+                        <SkeletonCard />
+                    </Grid>
+                ))
+            ) : (
+                videos?.map((item, idx) => (// to resolve the error of undefined map
+                    <Grid item xs={12} sm={6} md={4} lg={3} key={idx}>
+                        {item.id?.videoId && <VideoCard video={item} />}
+                        {item.id?.channelId && <ChannelCard channelDetail={item} />}
+                    </Grid>
+                ))
             )}
-        </Stack>
+        </Grid>
     )
 }
-Videos.propTypes = {                    //to solve  props validation 
-    videos: PropTypes.any
+Videos.propTypes = {
+    videos: PropTypes.array,
+    isLoading: PropTypes.bool
 }
 export default Videos

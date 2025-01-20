@@ -1,30 +1,54 @@
-import { Box } from '@mui/material'
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { Box, Container, Typography } from '@mui/material'
 import ChannelCard from './ChannelCard'
 import Videos from './Videos'
 const key = import.meta.env.VITE_RAPID_API_YOUTUBE_KEY
 export default function ChannelDetail() {
     const [ channelDetail, setChannelDetail ] = useState(null)
     const [ videos, setVideos ] = useState([])
-    const params = useParams()
+    const [ isLoading, setIsLoading ] = useState(true)
+    const { channelId } = useParams()
     // console.log(params)
-    const id = params.channelId
+    const id = channelId
     useEffect(() => {
-        const getdata = async () => {
-            const response = await fetch(`https://youtube-v31.p.rapidapi.com/channels?&part=snippet&id=${id}&rapidapi-key=${key}`)
-            const data = await response.json()
-            console.log(data.items[ 0 ]) //rendering many times because did not mentioned dependency
-            setChannelDetail(data.items[ 0 ])
+        const fetchChannelData = async () => {
+            try {
+                setIsLoading(true)
+                // Fetch channel details
+                const channelResponse = await fetch(
+                    `https://youtube-v31.p.rapidapi.com/channels?part=snippet,statistics&id=${id}`,
+                    {
+                        headers: {
+                            'X-RapidAPI-Key': key,
+                            'X-RapidAPI-Host': 'youtube-v31.p.rapidapi.com'
+                        }
+                    }
+                )
+                const channelData = await channelResponse.json()
+                setChannelDetail(channelData.items[0])
 
-            const getVideo = await fetch(`https://youtube-v31.p.rapidapi.com/search?&part=snippet&channelId=${id}&order=date&rapidapi-key=${key}`)
-            const vid = await getVideo.json()
-            // console.log(vid.items)
-            setVideos(vid.items)
-
+                // Fetch channel videos
+                const videosResponse = await fetch(
+                    `https://youtube-v31.p.rapidapi.com/search?channelId=${id}&part=snippet,id&order=date&maxResults=50`,
+                    {
+                        headers: {
+                            'X-RapidAPI-Key': key,
+                            'X-RapidAPI-Host': 'youtube-v31.p.rapidapi.com'
+                        }
+                    }
+                )
+                const videosData = await videosResponse.json()
+                setVideos(videosData.items)
+            } catch (error) {
+                console.error('Error fetching channel data:', error)
+            } finally {
+                setIsLoading(false)
+            }
         }
-        getdata()
+        fetchChannelData()
     }, [ id ])
+    if (!channelDetail?.snippet) return 'Loading...'
     return (
         <Box minHeight='95vh'>
             <Box>
@@ -35,11 +59,51 @@ export default function ChannelDetail() {
                 }} />
                 <ChannelCard channelDetail={channelDetail} marginTop='-110px' />
             </Box>
-            <Box>
-
-                <Box />
-                <Videos videos={videos} />
-            </Box>
+            <Container maxWidth="xl">
+                <Box sx={{ margin: '30px 0' }}>
+                    <Typography variant="h5" color="black" mb={3}>
+                        Channel Statistics
+                    </Typography>
+                    <Box 
+                        sx={{ 
+                            display: 'flex', 
+                            gap: 4, 
+                            flexWrap: 'wrap',
+                            color: 'black',
+                            mb: 4
+                        }}
+                    >
+                        <Box>
+                            <Typography variant="body2" color="black">
+                                Subscribers
+                            </Typography>
+                            <Typography variant="h6">
+                                {parseInt(channelDetail?.statistics?.subscriberCount).toLocaleString()}
+                            </Typography>
+                        </Box>
+                        <Box>
+                            <Typography variant="body2" color="black">
+                                Total Videos
+                            </Typography>
+                            <Typography variant="h6">
+                                {parseInt(channelDetail?.statistics?.videoCount).toLocaleString()}
+                            </Typography>
+                        </Box>
+                        <Box>
+                            <Typography variant="body2" color="black">
+                                Total Views
+                            </Typography>
+                            <Typography variant="h6">
+                                {parseInt(channelDetail?.statistics?.viewCount).toLocaleString()}
+                            </Typography>
+                        </Box>
+                    </Box>
+                    <Typography variant="h5" color="black" mb={2}>
+                        Videos
+                    </Typography>
+                    <Videos videos={videos} isLoading={isLoading} />
+                </Box>
+            </Container>
         </Box>
     )
 }

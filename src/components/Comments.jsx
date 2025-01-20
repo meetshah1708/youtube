@@ -49,7 +49,7 @@ export default function Comments({ videoId }) {
                     onChange={(e) => setNewComment(e.target.value)}
                     fullWidth
                     sx={{
-                        bgcolor: "#fff",
+                        bgcolor: "#1e1e1e",
                         borderRadius: 1,
                         mr: 2,
                     }}

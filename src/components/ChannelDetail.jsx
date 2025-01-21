@@ -3,8 +3,13 @@ import { useParams } from 'react-router-dom'
 import { Box, Container, Typography } from '@mui/material'
 import ChannelCard from './ChannelCard'
 import Videos from './Videos'
+import Navbar from './Navbar'
+import { useTheme } from '@mui/material/styles'
+
 const key = import.meta.env.VITE_RAPID_API_YOUTUBE_KEY
+
 export default function ChannelDetail() {
+    const theme = useTheme()
     const [ channelDetail, setChannelDetail ] = useState(null)
     const [ videos, setVideos ] = useState([])
     const [ isLoading, setIsLoading ] = useState(true)
@@ -51,6 +56,7 @@ export default function ChannelDetail() {
     if (!channelDetail?.snippet) return 'Loading...'
     return (
         <Box minHeight='95vh'>
+            <Navbar />
             <Box>
                 <div style={{
                     background: 'linear-gradient(90deg , rgba(0,238,247,1) 0%, rgba(206,3,184,1)100% , rgba(0,212,255,1)100% )',
@@ -61,7 +67,7 @@ export default function ChannelDetail() {
             </Box>
             <Container maxWidth="xl">
                 <Box sx={{ margin: '30px 0' }}>
-                    <Typography variant="h5" color="black" mb={3}>
+                    <Typography variant="h5" color={theme.palette.text.primary} mb={3}>
                         Channel Statistics
                     </Typography>
                     <Box 
@@ -69,12 +75,12 @@ export default function ChannelDetail() {
                             display: 'flex', 
                             gap: 4, 
                             flexWrap: 'wrap',
-                            color: 'black',
+                            color: theme.palette.text.primary,
                             mb: 4
                         }}
                     >
                         <Box>
-                            <Typography variant="body2" color="black">
+                            <Typography variant="body2" color={theme.palette.text.primary}>
                                 Subscribers
                             </Typography>
                             <Typography variant="h6">
@@ -82,7 +88,7 @@ export default function ChannelDetail() {
                             </Typography>
                         </Box>
                         <Box>
-                            <Typography variant="body2" color="black">
+                            <Typography variant="body2" color={theme.palette.text.primary}>
                                 Total Videos
                             </Typography>
                             <Typography variant="h6">
@@ -90,7 +96,7 @@ export default function ChannelDetail() {
                             </Typography>
                         </Box>
                         <Box>
-                            <Typography variant="body2" color="black">
+                            <Typography variant="body2" color={theme.palette.text.primary}>
                                 Total Views
                             </Typography>
                             <Typography variant="h6">
@@ -98,7 +104,7 @@ export default function ChannelDetail() {
                             </Typography>
                         </Box>
                     </Box>
-                    <Typography variant="h5" color="black" mb={2}>
+                    <Typography variant="h5" color={theme.palette.text.primary} mb={2}>
                         Videos
                     </Typography>
                     <Videos videos={videos} isLoading={isLoading} />

@@ -1,117 +1,118 @@
-import { Card, CardContent, CardMedia, Typography, Box } from "@mui/material";
 import { Link } from "react-router-dom";
+import { Typography, Card, CardContent, CardMedia, Box } from "@mui/material";
+import { CheckCircle } from "@mui/icons-material";
+import { useTheme } from '@mui/material/styles';
 import PropTypes from 'prop-types';
-import { CheckCircle, ThumbUp, Visibility } from "@mui/icons-material";
 
 // VideoCard component expects a video object with id and snippet properties
 // Common errors: undefined videoId, missing snippet data, broken thumbnail URLs
-export default function VideoCard({ video: { id: { videoId }, snippet } }) {
+export default function VideoCard({ video }) {
+    const theme = useTheme();
+    const { id: { videoId }, snippet, statistics } = video;
+
+    // Format view count
+    const formatCount = (count) => {
+        if (!count) return '0';
+        if (count >= 1000000) {
+            return `${(count / 1000000).toFixed(1)}M`;
+        }
+        if (count >= 1000) {
+            return `${(count / 1000).toFixed(1)}K`;
+        }
+        return count;
+    };
+
     return (
-        <Card sx={{
-            width: '100%',
-            boxShadow: 'none',
-            borderRadius: '12px',
-            overflow: 'hidden',  // Prevents content from spilling out
-            backgroundColor: '#1e1e1e',
-            margin: '8px',
-            // Smooth hover animation
-            '&:hover': {
-                transform: 'scale(1.02)',
-                transition: 'transform 0.3s ease-in-out',
-                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)'
-            }
-        }}>
-            {/* Video thumbnail link - Ensure videoId exists */}
+        <Card 
+            sx={{
+                width: '100%',
+                boxShadow: 'none',
+                borderRadius: 2,
+                overflow: 'hidden',
+                bgcolor: theme.palette.background.paper,
+                '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: theme.shadows[4],
+                },
+                transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+            }}
+        >
             <Link to={videoId ? `/video/${videoId}` : '#'}>
                 <CardMedia
-                    // Fallback empty string prevents broken image
-                    image={snippet?.thumbnails?.high?.url || ''}
-                    alt={snippet?.title || 'Video thumbnail'}
-                    sx={{
+                    component="img"
+                    image={snippet?.thumbnails?.high?.url}
+                    alt={snippet?.title}
+                    sx={{ 
                         width: '100%',
                         height: 180,
-                        objectFit: 'cover'  // Prevents image distortion
+                        objectFit: 'cover',
                     }}
                 />
             </Link>
-            <CardContent sx={{
-                backgroundColor: '#1e1e1e',
-                height: 'auto',
-                minHeight: '120px',  // Ensures consistent card height
-                padding: '12px',
-            }}>
-                {/* Video title with ellipsis for long titles */}
+            
+            <CardContent 
+                sx={{ 
+                    bgcolor: theme.palette.background.paper,
+                    padding: 2,
+                    height: '140px', // Fixed height for consistency
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 1
+                }}
+            >
                 <Link to={videoId ? `/video/${videoId}` : '#'} style={{ textDecoration: 'none' }}>
                     <Typography 
                         variant="subtitle1" 
-                        fontWeight="bold" 
-                        color="#FFF"
+                        fontWeight="bold"
                         sx={{
-                            fontSize: '14px',
+                            color: theme.palette.text.primary,
                             lineHeight: 1.2,
-                            maxHeight: '2.4em',
-                            overflow: 'hidden',
-                            // Multi-line ellipsis configuration
-                            textOverflow: 'ellipsis',
+                            mb: 1,
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: 'vertical',
-                            mb: 1
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            height: '2.4em', // Limit to 2 lines
                         }}
                     >
-                        {/* Ensure title exists */}
-                        {snippet?.title || 'Untitled Video'}
+                        {snippet?.title.slice(0, 60) || 'Untitled Video'}
                     </Typography>
                 </Link>
 
-                {/* Channel link - Ensure channelId exists */}
-                <Link to={snippet?.channelId ? `/channel/${snippet.channelId}` : '#'} 
-                    style={{ textDecoration: 'none' }}
-                >
+                <Box sx={{ mt: 'auto' }}> {/* Push channel info to bottom */}
+                    <Link 
+                        to={snippet?.channelId ? `/channel/${snippet.channelId}` : '#'} 
+                        style={{ textDecoration: 'none' }}
+                    >
+                        <Typography 
+                            variant="body2"
+                            sx={{
+                                color: theme.palette.text.secondary,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.5,
+                                '&:hover': {
+                                    color: theme.palette.primary.main,
+                                }
+                            }}
+                        >
+                            {snippet?.channelTitle || 'Unknown Channel'}
+                            <CheckCircle sx={{ fontSize: 12, color: theme.palette.primary.main }} />
+                        </Typography>
+                    </Link>
+
                     <Typography 
-                        variant="body2" 
-                        sx={{
-                            color: '#aaa',
-                            fontSize: '12px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            mb: 1,
-                            '&:hover': { color: '#fff' }
+                        variant="caption" 
+                        sx={{ 
+                            color: theme.palette.text.secondary,
+                            mt: 0.5,
+                            display: 'block'
                         }}
                     >
-                        {/* Channel title with verification badge */}
-                        {snippet?.channelTitle || 'Unknown Channel'}
-                        <CheckCircle sx={{ fontSize: 12, color: 'gray', ml: '5px' }} />
+                        {/* Add published date or video duration if available */}
+                        {new Date(snippet?.publishedAt).toLocaleDateString()}
                     </Typography>
-                </Link>
-
-                {/* Video statistics */}
-                <Box sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 2,
-                    mt: 1
-                }}>
-                    {/* View count */}
-                    <Box sx={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        color: '#aaa',
-                        fontSize: '12px'
-                    }}>
-                        <Visibility sx={{ fontSize: '16px', mr: 0.5 }} />
-                        <Typography variant="caption">123K</Typography>
-                    </Box>
-                    {/* Like count */}
-                    <Box sx={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        color: '#aaa',
-                        fontSize: '12px'
-                    }}>
-                        <ThumbUp sx={{ fontSize: '16px', mr: 0.5 }} />
-                        <Typography variant="caption">1.2K</Typography>
-                    </Box>
                 </Box>
             </CardContent>
         </Card>

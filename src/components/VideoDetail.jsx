@@ -5,6 +5,7 @@ import ReactPlayer from "react-player";
 import { Link, useParams } from "react-router-dom"
 import Videos from './Videos'
 import Comments from './Comments'
+import Navbar from './Navbar'
 const key = import.meta.env.VITE_RAPID_API_YOUTUBE_KEY
 
 
@@ -44,6 +45,7 @@ export default function VideoDetail() {
                 backgroundColor: theme.palette.mode === 'dark' ? '#0f0f0f' : '#f9f9f9'
             }}
         >
+            <Navbar />
             <Stack direction={{ xs: 'column', md: 'row' }}>
                 <Box flex={1}>
                     <Box sx={{ width: '100%', position: 'sticky', top: '86px' }}>

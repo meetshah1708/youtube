@@ -1,27 +1,38 @@
 import Feed from "./components/Feed"
-import Videos from './components/Videos.jsx'
-import VideoDetail from './components/VideoDetail.jsx'
-import SearchFeed from './components/SearchFeed.jsx'
+import Videos from './components/Videos'
+import VideoDetail from './components/VideoDetail'
+import SearchFeed from './components/SearchFeed'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import ChannelDetail from "./components/ChannelDetail.jsx"
-import { ThemeProvider } from '@mui/material/styles';
-import { theme } from './theme/theme';
+import ChannelDetail from "./components/ChannelDetail"
+import Login from "./components/Login"
+import SignUp from "./components/SignUp"
+import { Box, CssBaseline } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
+import { AuthProvider } from './contexts/AuthContext'
 
 function App() {
-
+    const theme = useTheme();
 
     return (
-        <ThemeProvider theme={theme}>
-            <BrowserRouter>
-                <Routes>
-                    <Route path='/' exact element={<Feed />}></Route>
-                    <Route path='/videos' exact element={<Videos />}></Route>
-                    <Route path='/video/:videoId' exact element={<VideoDetail />}></Route>
-                    <Route path='/search/:searchTerm' exact element={<SearchFeed />}></Route>
-                    <Route path='/channel/:channelId' element ={<ChannelDetail></ChannelDetail>}></Route>
-                </Routes>
-            </BrowserRouter>
-        </ThemeProvider>
+        <AuthProvider>
+            <Box sx={{ 
+                bgcolor: theme.palette.background.default,
+                minHeight: '100vh'
+            }}>
+                <CssBaseline />
+                <BrowserRouter>
+                    <Routes>
+                        <Route path='/' exact element={<Feed />} />
+                        <Route path='/videos' exact element={<Videos />} />
+                        <Route path='/video/:videoId' exact element={<VideoDetail />} />
+                        <Route path='/search/:searchTerm' exact element={<SearchFeed />} />
+                        <Route path='/channel/:channelId' element={<ChannelDetail />} />
+                        <Route path='/login' element={<Login />} />
+                        <Route path='/signup' element={<SignUp />} />
+                    </Routes>
+                </BrowserRouter>
+            </Box>
+        </AuthProvider>
     )
 }
 

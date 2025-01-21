@@ -1,49 +1,55 @@
-import { Paper } from "@mui/material";
+import { Paper, InputBase, IconButton } from "@mui/material";
+import { Search } from "@mui/icons-material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { useTheme } from '@mui/material/styles';
 
 export default function SearchBar() {
-    const [ searchTerm, setSearchTerm ] = useState('')
-    const navigate = useNavigate()
+    const theme = useTheme();
+    const [searchTerm, setSearchTerm] = useState('');
+    const navigate = useNavigate();
+
     const handleSubmit = (e) => {
-        e.preventDefault()
+        e.preventDefault();
         if (searchTerm) {
-            navigate(`/search/${searchTerm}`)
-            setSearchTerm('')
+            navigate(`/search/${searchTerm}`);
+            setSearchTerm('');
         }
-     }
-  return (
-      <div>
-          <Paper 
-              component="form"
-              onSubmit={ handleSubmit}
-              sx={{
-                  borderRadius: 20,
-                  border: " 1px solid black",
-                 pl:2,
-                  background: '#fff',
-                  mr: { sm: 5 },
-                  justifyContent: 'center',
-                  alignItems:'center'
-          }}
-          >
-              <input type="text" onChange={(e)=>{setSearchTerm(e.target.value)}}
-                 
-                  style={{
-                      background: '#fff',
-                      border: '0 solid #fff' ,
-                      objectFit: 'contain',
-                      borderRadius: 20,
-                      color: 'black',
-                      outline:'none'
-                      }}
-                  placeholder="Search..."
-              />
-              
-              <i  onClick={handleSubmit} className="fa fa-search" aria-hidden="true" style={{paddingRight:10}} ></i>
-              
-          </Paper>
-    </div>
-  )
+    };
+
+    return (
+        <Paper
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
+                borderRadius: 20,
+                border: `1px solid ${theme.palette.divider}`,
+                pl: 2,
+                boxShadow: 'none',
+                mr: { sm: 5 },
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: theme.palette.background.paper
+            }}
+        >
+            <InputBase
+                sx={{
+                    flex: 1,
+                    color: theme.palette.text.primary
+                }}
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <IconButton 
+                type="submit"
+                sx={{ 
+                    p: '10px',
+                    color: theme.palette.primary.main
+                }}
+            >
+                <Search />
+            </IconButton>
+        </Paper>
+    );
 }

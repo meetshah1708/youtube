@@ -9,6 +9,7 @@ import SignUp from "./components/SignUp"
 import { Box, CssBaseline } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { AuthProvider } from './contexts/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
     const theme = useTheme();
@@ -22,13 +23,21 @@ function App() {
                 <CssBaseline />
                 <BrowserRouter>
                     <Routes>
-                        <Route path='/' exact element={<Feed />} />
-                        <Route path='/videos' exact element={<Videos />} />
-                        <Route path='/video/:videoId' exact element={<VideoDetail />} />
-                        <Route path='/search/:searchTerm' exact element={<SearchFeed />} />
-                        <Route path='/channel/:channelId' element={<ChannelDetail />} />
-                        <Route path='/login' element={<Login />} />
-                        <Route path='/signup' element={<SignUp />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/signup" element={<SignUp />} />
+                        <Route path="/" element={
+                            <ProtectedRoute>
+                                <Feed />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/videos" exact element={<Videos />} />
+                        <Route path="/video/:videoId" element={
+                            <ProtectedRoute>
+                                <VideoDetail />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/search/:searchTerm" exact element={<SearchFeed />} />
+                        <Route path="/channel/:channelId" element={<ChannelDetail />} />
                     </Routes>
                 </BrowserRouter>
             </Box>

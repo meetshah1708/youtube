@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Box, TextField, Button, Typography, Paper, Alert, CircularProgress } from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
+import { Box, Paper, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import axios from 'axios';
 
 export default function Login() {
     const [formData, setFormData] = useState({
@@ -11,7 +11,7 @@ export default function Login() {
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+    const { login } = useAuth();
     const theme = useTheme();
 
     const handleSubmit = async (e) => {
@@ -19,74 +19,37 @@ export default function Login() {
         setError('');
         setLoading(true);
 
-        try {
-            const response = await axios.post('http://localhost:5000/api/login', formData);
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-            navigate('/');
-        } catch (err) {
-            setError(err.response?.data?.error || 'An error occurred');
-        } finally {
-            setLoading(false);
+        const result = await login(formData.email, formData.password);
+        console.log(result);
+        if (!result) {
+            setError(result.error);
         }
+        setLoading(false);
     };
 
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                minHeight: '100vh',
-                bgcolor: theme.palette.background.default,
-                padding: 2,
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                margin: 'auto',
-                overflow: 'auto'
-            }}
-        >
-            <Paper
-                elevation={6}
-                sx={{
-                    p: 4,
-                    width: '100%',
-                    maxWidth: 400,
-                    bgcolor: theme.palette.background.paper,
-                    borderRadius: 2,
-                    position: 'relative',
-                    overflow: 'hidden',
-                    margin: 'auto',
-                    '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: '4px',
-                        background: 'linear-gradient(90deg, #FF0000, #FF3333)'
-                    }
-                }}
-            >
-                <Typography 
-                    variant="h4" 
-                    component="h1" 
-                    gutterBottom 
-                    color={theme.palette.text.primary}
-                    sx={{ 
-                        fontWeight: 700,
-                        mb: 3,
-                        textAlign: 'center'
-                    }}
-                >
-                    Welcome Back
+        <Box sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '100vh',
+            bgcolor: theme.palette.background.default,
+            padding: { xs: 2, sm: 4 }
+        }}>
+            <Paper elevation={6} sx={{
+                p: { xs: 2, sm: 4 },
+                width: '100%',
+                maxWidth: 400,
+                bgcolor: theme.palette.background.paper,
+                borderRadius: 2
+            }}>
+                <Typography variant="h4" component="h1" gutterBottom align="center" 
+                    sx={{ color: theme.palette.text.primary, mb: 4 }}>
+                    Login
                 </Typography>
 
                 {error && (
-                    <Alert severity="error" sx={{ mb: 2 }}>
+                    <Alert severity="error" sx={{ mb: 3 }}>
                         {error}
                     </Alert>
                 )}
@@ -96,71 +59,34 @@ export default function Login() {
                         fullWidth
                         label="Email"
                         type="email"
-                        margin="normal"
                         required
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                '&:hover fieldset': {
-                                    borderColor: theme.palette.primary.main,
-                                },
-                            },
-                        }}
+                        sx={{ mb: 2 }}
                     />
                     <TextField
                         fullWidth
                         label="Password"
                         type="password"
-                        margin="normal"
                         required
                         value={formData.password}
                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                '&:hover fieldset': {
-                                    borderColor: theme.palette.primary.main,
-                                },
-                            },
-                        }}
+                        sx={{ mb: 3 }}
                     />
                     <Button
                         type="submit"
                         fullWidth
                         variant="contained"
                         disabled={loading}
-                        sx={{
-                            mt: 3,
-                            mb: 2,
-                            py: 1.5,
-                            bgcolor: '#FF0000',
-                            '&:hover': {
-                                bgcolor: '#CC0000',
-                            },
-                        }}
+                        sx={{ mb: 2, py: 1.5 }}
                     >
                         {loading ? <CircularProgress size={24} /> : 'Login'}
                     </Button>
                 </form>
 
-                <Typography 
-                    variant="body2" 
-                    align="center" 
-                    sx={{ mt: 2 }} 
-                    color={theme.palette.text.secondary}
-                >
+                <Typography variant="body2" align="center" sx={{ mt: 2 }}>
                     Don't have an account?{' '}
-                    <Link 
-                        to="/signup" 
-                        style={{ 
-                            color: '#FF0000',
-                            textDecoration: 'none',
-                            fontWeight: 500,
-                            '&:hover': {
-                                textDecoration: 'underline'
-                            }
-                        }}
-                    >
+                    <Link to="/signup" style={{ color: theme.palette.primary.main }}>
                         Sign Up
                     </Link>
                 </Typography>

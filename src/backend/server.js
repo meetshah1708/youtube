@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-
+const API_URL = process.env.API_URL;
 const app = express();
 
 // CORS configuration
@@ -107,7 +107,7 @@ const auth = async (req, res, next) => {
 
 // Routes
 // Signup Route
-app.post('/api/signup', async (req, res) => {
+app.post(`${API_URL}/api/signup`, async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
@@ -163,7 +163,7 @@ app.post('/api/signup', async (req, res) => {
 });
 
 // Login Route
-app.post('/api/login', async (req, res) => {
+app.post(`${API_URL}/api/login`, async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -207,7 +207,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Protected Route Example
-app.get('/api/profile', auth, async (req, res) => {
+app.get(`${API_URL}/api/profile`, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
         res.json(user);

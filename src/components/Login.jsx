@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Box, Paper, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
@@ -13,6 +13,7 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const theme = useTheme();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -21,6 +22,9 @@ export default function Login() {
 
         const result = await login(formData.email, formData.password);
         console.log(result);
+        if (result.success) {
+            navigate('/');
+        } 
         if (!result) {
             setError(result.error);
         }

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import axios from 'axios';
 
+
 export default function SignUp() {
     const [formData, setFormData] = useState({
         email: '',
@@ -19,9 +20,9 @@ export default function SignUp() {
         e.preventDefault();
         setError('');
         setLoading(true);
-
+        const API_URL = process.env.API_URL;
         try {
-            const response = await axios.post('http://localhost:5000/api/signup', formData);
+            const response = await axios.post(`${API_URL}/api/signup`, formData);
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
             navigate('/');

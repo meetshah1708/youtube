@@ -5,20 +5,25 @@ import Videos from './Videos'
 import Navbar from "./Navbar"
 import LoadingSpinner from "./LoadingSpinner"
 import { useTheme } from '@mui/material/styles'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function SearchFeed() {
     const [ videos, setVideos ] = useState([])
     const [ isLoading, setIsLoading ] = useState(true)
+    const [ error, setError ] = useState(null)
     const { searchTerm } = useParams()
     const theme = useTheme()
+    const { user } = useAuth()
     const key = import.meta.env.VITE_RAPID_API_YOUTUBE_KEY
 
     useEffect(() => {
         const getData = async () => {
             try {
                 setIsLoading(true)
+                setError(null)
+                
                 const response = await fetch(
-                    `https://youtube-v31.p.rapidapi.com/search?part=snippet&q=${searchTerm}`,
+                    `https://youtube-v31.p.rapidapi.com/search?part=snippet&q=${searchTerm}&maxResults=50`,
                     {
                         headers: {
                             'X-RapidAPI-Key': key,
@@ -26,16 +31,53 @@ export default function SearchFeed() {
                         }
                     }
                 )
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch search results')
+                }
+
                 const data = await response.json()
+                if (!data.items) {
+                    throw new Error('No results found')
+                }
+
                 setVideos(data.items)
             } catch (error) {
                 console.error("Error fetching search results:", error)
+                setError(error.message)
             } finally {
                 setIsLoading(false)
             }
         }
-        getData()
+
+        if (searchTerm && key) {
+            getData()
+        }
     }, [ searchTerm, key ])
+
+    if (error) {
+        return (
+            <Box 
+                sx={{ 
+                    minHeight: '95vh',
+                    backgroundColor: theme.palette.background.default
+                }}
+            >
+                <Navbar />
+                <Container 
+                    maxWidth="xl" 
+                    sx={{ 
+                        pt: { xs: 10, sm: 12 },
+                        pb: 4
+                    }}
+                >
+                    <Typography color="error" variant="h6" align="center">
+                        {error}
+                    </Typography>
+                </Container>
+            </Box>
+        )
+    }
 
     return (
         <Box 
@@ -70,7 +112,7 @@ export default function SearchFeed() {
                             </span>
                         </Typography>
 
-                        {videos.length === 0 ? (
+                        {videos?.length === 0 ? (
                             <Typography 
                                 variant="h6"
                                 sx={{ 

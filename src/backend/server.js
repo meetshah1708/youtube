@@ -7,16 +7,32 @@ require('dotenv').config();
 
 const app = express();
 
-// Middleware
+// CORS configuration
 app.use(cors({
     origin: [
         'https://youtube-meet.vercel.app',
-        'http://localhost:3000',
-        'http://localhost:5173'  // Vite default port
+        'http://localhost:5173',
+        'http://localhost:5000'
     ],
-    credentials: true
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 }));
+
 app.use(express.json());
+
+// Add OPTIONS handling for preflight requests
+app.options('*', cors());
+
+// Add headers middleware
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    next();
+});
 
 // Check if environment variables are loaded
 if (!process.env.MONGODB_URI) {

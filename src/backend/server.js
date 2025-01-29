@@ -11,17 +11,13 @@ const app = express();
 const API_PREFIX = '/api';
 
 // CORS configuration
+
 app.use(cors({
     origin: [
         'https://youtube-meet.vercel.app',
         'http://localhost:5173',
-        
     ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204
+    credentials: true
 }));
 
 app.use(express.json());
@@ -119,7 +115,7 @@ const auth = async (req, res, next) => {
 // Routes
 
 // Signup Route
-app.post(`${API_PREFIX}/signup`, async (req, res) => {
+app.post(`/api/signup`, async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
@@ -175,7 +171,7 @@ app.post(`${API_PREFIX}/signup`, async (req, res) => {
 });
 
 // Login Route
-app.post(`${API_PREFIX}/login`, async (req, res) => {
+app.post(`/api/login`, async (req, res) => {
     try {
         const { email, password } = req.body;
 

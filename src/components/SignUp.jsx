@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Box, TextField, Button, Typography, Paper, Alert, CircularProgress } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
-import axios from 'axios';
-
+import { useAuth } from '../contexts/AuthContext';
 
 export default function SignUp() {
     const [formData, setFormData] = useState({
@@ -15,19 +14,22 @@ export default function SignUp() {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const theme = useTheme();
+    const { signup } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
-        const API_URL = process.env.API_URL;
         try {
-            const response = await axios.post(`${API_URL}/api/signup`, formData);
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-            navigate('/');
+            const result = await signup(formData);
+            if (result.success) {
+                navigate('/');
+            } else {
+                setError(result.error || 'Signup failed');
+            }
         } catch (err) {
-            setError(err.response?.data?.error || 'An error occurred');
+            setError('An error occurred during signup');
+            console.error('Signup error:', err);
         } finally {
             setLoading(false);
         }
@@ -62,22 +64,13 @@ export default function SignUp() {
                     position: 'relative'
                 }}
             >
-                <Typography 
-                    variant="h4" 
-                    component="h1" 
-                    gutterBottom 
-                    color={theme.palette.text.primary}
-                    sx={{ 
-                        fontWeight: 700,
-                        mb: 3,
-                        textAlign: 'center'
-                    }}
-                >
-                    Create Account
+                <Typography variant="h4" component="h1" gutterBottom align="center" 
+                    sx={{ color: theme.palette.text.primary, mb: 4 }}>
+                    Sign Up
                 </Typography>
 
                 {error && (
-                    <Alert severity="error" sx={{ mb: 2 }}>
+                    <Alert severity="error" sx={{ mb: 3 }}>
                         {error}
                     </Alert>
                 )}
@@ -86,11 +79,12 @@ export default function SignUp() {
                     <TextField
                         fullWidth
                         label="Username"
-                        margin="normal"
+                        type="text"
                         required
                         value={formData.username}
                         onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                         sx={{
+                            mb: 2,
                             '& .MuiOutlinedInput-root': {
                                 '&:hover fieldset': {
                                     borderColor: theme.palette.primary.main,
@@ -102,11 +96,11 @@ export default function SignUp() {
                         fullWidth
                         label="Email"
                         type="email"
-                        margin="normal"
                         required
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         sx={{
+                            mb: 2,
                             '& .MuiOutlinedInput-root': {
                                 '&:hover fieldset': {
                                     borderColor: theme.palette.primary.main,
@@ -118,11 +112,11 @@ export default function SignUp() {
                         fullWidth
                         label="Password"
                         type="password"
-                        margin="normal"
                         required
                         value={formData.password}
                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                         sx={{
+                            mb: 3,
                             '& .MuiOutlinedInput-root': {
                                 '&:hover fieldset': {
                                     borderColor: theme.palette.primary.main,
@@ -136,7 +130,6 @@ export default function SignUp() {
                         variant="contained"
                         disabled={loading}
                         sx={{
-                            mt: 3,
                             mb: 2,
                             py: 1.5,
                             bgcolor: theme.palette.primary.main,
@@ -161,10 +154,7 @@ export default function SignUp() {
                         style={{ 
                             color: theme.palette.primary.main,
                             textDecoration: 'none',
-                            fontWeight: 500,
-                            '&:hover': {
-                                textDecoration: 'underline'
-                            }
+                            fontWeight: 500
                         }}
                     >
                         Login

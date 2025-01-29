@@ -1,17 +1,29 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import { getApiUrl } from '../config/environment';
 
 const AuthContext = createContext(null);
 
-const API_URL = 'http://localhost:5000' || 'https://youtube-meet.vercel.app';
+const API_URL = getApiUrl(); // This will be '/api' in development due to proxy
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        const storedUser = localStorage.getItem('user');
+
+        if (token && storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+
+        setLoading(false);
+    }, []);
+
     const login = async (email, password) => {
         try {
-            const response = await axios.post(`${API_URL}/api/login`, { email, password });
+            const response = await axios.post(`${API_URL}/login`, { email, password });
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -28,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 
     const signup = async (userData) => {
         try {
-            const response = await axios.post(`${API_URL}/api/signup`, userData);
+            const response = await axios.post(`${API_URL}/signup`, userData);
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -48,14 +60,6 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('user');
         setUser(null);
     };
-
-    useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-        setLoading(false);
-    }, []);
 
     return (
         <AuthContext.Provider value={{ user, login, signup, logout, loading }}>

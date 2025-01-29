@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { Box, TextField, Button, Typography, Paper, Alert, CircularProgress } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import { Box, Paper, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
     const [formData, setFormData] = useState({
@@ -20,19 +20,24 @@ export default function Login() {
         setError('');
         setLoading(true);
 
-        const result = await login(formData.email, formData.password);
-        console.log(result);
-        if (result.success) {
-            navigate('/');
-        } 
-        if (!result) {
-            setError(result.error);
+        try {
+            const result = await login(formData.email, formData.password);
+            if (result.success) {
+                navigate('/');
+            } else {
+                setError(result.error || 'Login failed');
+            }
+        } catch (error) {
+            setError('An error occurred during login');
+            console.error('Login error:', error);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     return (
         <Box sx={{
+            margin: 'auto',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
@@ -88,9 +93,21 @@ export default function Login() {
                     </Button>
                 </form>
 
-                <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                <Typography 
+                    variant="body2" 
+                    align="center" 
+                    sx={{ mt: 2 }} 
+                    color={theme.palette.text.secondary}
+                >
                     Don't have an account?{' '}
-                    <Link to="/signup" style={{ color: theme.palette.primary.main }}>
+                    <Link 
+                        to="/signup" 
+                        style={{ 
+                            color: theme.palette.primary.main,
+                            textDecoration: 'none',
+                            fontWeight: 500
+                        }}
+                    >
                         Sign Up
                     </Link>
                 </Typography>

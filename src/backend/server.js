@@ -4,15 +4,18 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const API_URL = process.env.API_URL;
+
 const app = express();
+
+// API Prefix
+const API_PREFIX = '/api';
 
 // CORS configuration
 app.use(cors({
     origin: [
         'https://youtube-meet.vercel.app',
         'http://localhost:5173',
-        'http://localhost:5000'
+        
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -40,6 +43,11 @@ if (!process.env.MONGODB_URI) {
     process.exit(1);
 }
 
+if (!process.env.JWT_SECRET) {
+    console.error('JWT_SECRET is not defined in environment variables');
+    process.exit(1);
+}
+
 // MongoDB Connection with strictQuery setting
 mongoose.set('strictQuery', false);
 mongoose.connect(process.env.MONGODB_URI, {
@@ -48,7 +56,10 @@ mongoose.connect(process.env.MONGODB_URI, {
     serverSelectionTimeoutMS: 5000,
 })
 .then(() => console.log('MongoDB connected'))
-.catch(err => console.error('MongoDB connection error:', err));
+.catch(err => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+});
 
 // User Schema
 const userSchema = new mongoose.Schema({
@@ -80,7 +91,7 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 // JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Authentication Middleware
 const auth = async (req, res, next) => {
@@ -106,8 +117,9 @@ const auth = async (req, res, next) => {
 };
 
 // Routes
+
 // Signup Route
-app.post(`${API_URL}/api/signup`, async (req, res) => {
+app.post(`${API_PREFIX}/signup`, async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
@@ -163,7 +175,7 @@ app.post(`${API_URL}/api/signup`, async (req, res) => {
 });
 
 // Login Route
-app.post(`${API_URL}/api/login`, async (req, res) => {
+app.post(`${API_PREFIX}/login`, async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -207,13 +219,19 @@ app.post(`${API_URL}/api/login`, async (req, res) => {
 });
 
 // Protected Route Example
-app.get(`${API_URL}/api/profile`, auth, async (req, res) => {
+app.get(`${API_PREFIX}/profile`, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
         res.json(user);
     } catch (error) {
         res.status(500).json({ error: 'Error fetching profile' });
     }
+});
+
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+    console.error('Unhandled Error:', err);
+    res.status(500).json({ error: 'An unexpected error occurred' });
 });
 
 // Start Server

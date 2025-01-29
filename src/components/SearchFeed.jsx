@@ -6,6 +6,7 @@ import Navbar from "./Navbar"
 import LoadingSpinner from "./LoadingSpinner"
 import { useTheme } from '@mui/material/styles'
 import { useAuth } from '../contexts/AuthContext'
+import { fetchApi } from '../assets/FetchApi'
 
 export default function SearchFeed() {
     const [ videos, setVideos ] = useState([])
@@ -22,22 +23,9 @@ export default function SearchFeed() {
                 setIsLoading(true)
                 setError(null)
                 
-                const response = await fetch(
-                    `https://youtube-v31.p.rapidapi.com/search?part=snippet&q=${searchTerm}&maxResults=50`,
-                    {
-                        headers: {
-                            'X-RapidAPI-Key': key,
-                            'X-RapidAPI-Host': 'youtube-v31.p.rapidapi.com'
-                        }
-                    }
-                )
+                const data = await fetchApi(`https://youtube-v31.p.rapidapi.com/search?part=snippet&q=${searchTerm}&maxResults=50`)
 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch search results')
-                }
-
-                const data = await response.json()
-                if (!data.items) {
+                if (!data || !data.items) {
                     throw new Error('No results found')
                 }
 
@@ -112,7 +100,7 @@ export default function SearchFeed() {
                             </span>
                         </Typography>
 
-                        {videos?.length === 0 ? (
+                        {videos.length === 0 ? (
                             <Typography 
                                 variant="h6"
                                 sx={{ 

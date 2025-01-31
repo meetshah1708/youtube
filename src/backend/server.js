@@ -7,8 +7,7 @@ require('dotenv').config();
 
 const app = express();
 
-// API Prefix
-const API_PREFIX = '/api';
+
 
 // CORS configuration
 
@@ -16,6 +15,7 @@ app.use(cors({
     origin: [
         'https://youtube-meet.vercel.app',
         'http://localhost:5173',
+        'http://localhost:5000',
     ],
     credentials: true
 }));
@@ -215,7 +215,7 @@ app.post(`/api/login`, async (req, res) => {
 });
 
 // Protected Route Example
-app.get(`${API_PREFIX}/profile`, auth, async (req, res) => {
+app.get(`/profile`, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
         res.json(user);

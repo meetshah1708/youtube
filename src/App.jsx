@@ -10,11 +10,13 @@ import { Box, CssBaseline } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
+import ErrorBoundary from './components/ErrorBoundary'
 
 function App() {
     const theme = useTheme();
 
     return (
+        <ErrorBoundary>
         <AuthProvider>
             <Box sx={{ 
                 bgcolor: theme.palette.background.default,
@@ -46,6 +48,7 @@ function App() {
                 </BrowserRouter>
             </Box>
         </AuthProvider>
+        </ErrorBoundary>
     )
 }
 

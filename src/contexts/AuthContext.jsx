@@ -7,7 +7,8 @@ const AuthContext = createContext(null);
 const API_URL = import.meta.env.MODE === 'development' 
   ? 'http://localhost:5000/api' 
   : 'https://youtube-meet.vercel.app/api';// This will be '/api' in development due to proxy
-console.log(API_URL);
+// console.log(API_URL);
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);

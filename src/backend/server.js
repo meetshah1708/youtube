@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -7,16 +8,28 @@ require('dotenv').config();
 
 const app = express();
 
-
+// Use Helmet to set Content Security Policy
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      fontSrc: ["'self'", "data:", "https://youtube-c8u0.onrender.com"],
+      connectSrc: ["'self'", "https:"],
+      imgSrc: ["'self'", "data:"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  })
+);
 
 // CORS configuration
-
 app.use(cors({
     origin: [
         'https://youtube-meet.vercel.app',
         'http://localhost:5173',
         'https://youtube-c8u0.onrender.com'
-        
     ],
     credentials: true
 }));

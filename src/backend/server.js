@@ -14,7 +14,8 @@ const app = express();
 app.use(cors({
     origin: [
         'https://youtube-meet.vercel.app',
-        'http://localhost:5173'
+        'http://localhost:5173',
+        'https://youtube-782k.onrender.com'
         
     ],
     credentials: true
@@ -112,7 +113,6 @@ const auth = async (req, res, next) => {
     }
 };
 
-// Routes
 
 // Signup Route
 app.post(`/api/signup`, async (req, res) => {
@@ -222,6 +222,11 @@ app.get(`/profile`, auth, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Error fetching profile' });
     }
+});
+
+// Add this near your other routes
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
 });
 
 // Error Handling Middleware

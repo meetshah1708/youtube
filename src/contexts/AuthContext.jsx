@@ -6,7 +6,7 @@ const AuthContext = createContext(null);
 // Update API_URL configuration
 const API_URL = import.meta.env.MODE === 'development' 
   ? 'http://localhost:5000/api' 
-  : 'https://youtube-782k.onrender.com/api';// This will be '/api' in development due to proxy
+  : 'https://youtube-c8u0.onrender.com/api';// This will be '/api' in development due to proxy
 // console.log(API_URL);
 
 export const AuthProvider = ({ children }) => {

@@ -15,7 +15,7 @@ app.use(cors({
     origin: [
         'https://youtube-meet.vercel.app',
         'http://localhost:5173',
-        'https://youtube-782k.onrender.com'
+        'https://youtube-c8u0.onrender.com'
         
     ],
     credentials: true

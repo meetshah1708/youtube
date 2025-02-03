@@ -11,6 +11,7 @@ import { useTheme } from '@mui/material/styles'
 import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import ErrorBoundary from './components/ErrorBoundary'
+import Navbar from "./components/Navbar.jsx";
 
 function App() {
     const theme = useTheme();
@@ -33,7 +34,8 @@ function App() {
                         <Route path="/signup" element={<SignUp />} />
                         <Route path="/" element={
                             <ProtectedRoute>
-                                <Feed />
+                                <Navbar/>
+                                <Feed selectedCategory="new"/>
                             </ProtectedRoute>
                         } />
                         <Route path="/videos" exact element={<Videos />} />

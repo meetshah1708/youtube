@@ -10,12 +10,13 @@ const key = import.meta.env.VITE_RAPID_API_YOUTUBE_KEY
 
 export default function ChannelDetail() {
     const theme = useTheme()
-    const [ channelDetail, setChannelDetail ] = useState(null)
-    const [ videos, setVideos ] = useState([])
-    const [ isLoading, setIsLoading ] = useState(true)
+    const [channelDetail, setChannelDetail] = useState(null)
+    const [videos, setVideos] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
     const { channelId } = useParams()
     // console.log(params)
     const id = channelId
+
     useEffect(() => {
         const fetchChannelData = async () => {
             try {
@@ -52,8 +53,10 @@ export default function ChannelDetail() {
             }
         }
         fetchChannelData()
-    }, [ id ])
+    }, [id])
     if (!channelDetail?.snippet) return 'Loading...'
+
+
     return (
         <Box minHeight='95vh'>
             <Navbar />
@@ -63,17 +66,20 @@ export default function ChannelDetail() {
                     zIndex: 10,
                     height: '300px'
                 }} />
-                <ChannelCard channelDetail={channelDetail} marginTop='-110px' />
+                <ChannelCard
+                    channelDetail={{ ...channelDetail, id: { channelId: channelDetail.id } }}
+                    marginTop="-110px"
+                />
             </Box>
             <Container maxWidth="xl">
                 <Box sx={{ margin: '30px 0' }}>
                     <Typography variant="h5" color={theme.palette.text.primary} mb={3}>
                         Channel Statistics
                     </Typography>
-                    <Box 
-                        sx={{ 
-                            display: 'flex', 
-                            gap: 4, 
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            gap: 4,
                             flexWrap: 'wrap',
                             color: theme.palette.text.primary,
                             mb: 4

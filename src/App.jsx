@@ -12,6 +12,8 @@ import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import ErrorBoundary from './components/ErrorBoundary'
 import Navbar from "./components/Navbar.jsx";
+import {WatchLaterProvider} from './contexts/WatchLaterContext'
+import {WatchLater} from "./components/WatchLater.jsx";
 
 function App() {
     const theme = useTheme();
@@ -19,6 +21,7 @@ function App() {
     return (
         <ErrorBoundary>
         <AuthProvider>
+            <WatchLaterProvider>
             <Box sx={{ 
                 bgcolor: theme.palette.background.default,
                 minHeight: '100vh',
@@ -44,11 +47,14 @@ function App() {
                                 <VideoDetail />
                             </ProtectedRoute>
                         } />
+                        <Route path="/watch-later" element={<WatchLater />} />
+
                         <Route path="/search/:searchTerm" exact element={<SearchFeed />} />
                         <Route path="/channel/:channelId" element={<ChannelDetail />} />
                     </Routes>
                 </BrowserRouter>
             </Box>
+            </WatchLaterProvider>
         </AuthProvider>
         </ErrorBoundary>
     )

@@ -2,8 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Stack, Button, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-// Suppose you have categories like this:
 import { categories } from "../assets/youtube";
+import WatchLater from '@mui/icons-material/WatchLater';
+import { Link } from 'react-router-dom';
 
 export default function SideBar({ selectedCategory, setSelectedCategory }) {
     const theme = useTheme();
@@ -26,14 +27,8 @@ export default function SideBar({ selectedCategory, setSelectedCategory }) {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "flex-start",
-                        backgroundColor:
-                            cat.name === selectedCategory
-                                ? theme.palette.primary.main
-                                : "transparent",
-                        color:
-                            cat.name === selectedCategory
-                                ? "#fff"
-                                : theme.palette.text.primary,
+                        backgroundColor: cat.name === selectedCategory ? theme.palette.primary.main : "transparent",
+                        color: cat.name === selectedCategory ? "#fff" : theme.palette.text.primary,
                         textTransform: "none",
                         padding: "10px 20px",
                         "&:hover": {
@@ -42,25 +37,41 @@ export default function SideBar({ selectedCategory, setSelectedCategory }) {
                         }
                     }}
                 >
-                    <i
-                        className={cat.icon}
-                        aria-hidden="true"
-                        style={{ marginRight: "15px" }}
-                    />
-                    {cat.name}
+                     <i className={cat.icon} style={{ marginRight: "15px" }}></i>
+                     {cat.name}
                 </Button>
             ))}
 
-            <Typography
-                variant="caption"
+            <Button
+                component={Link}
+                to="/watch-later"
                 sx={{
-                    marginTop: "20px",
-                    textAlign: "center",
-                    color: theme.palette.text.secondary,
-                    padding: "10px"
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    backgroundColor: "transparent",
+                    color: theme.palette.text.primary,
+                    textTransform: "none",
+                    padding: "10px 20px",
+                    "&:hover": {
+                        backgroundColor: theme.palette.primary.main,
+                        color: "#fff"
+                    }
                 }}
             >
-                © MeetEnterprise
+                <WatchLater sx={{ mr: 2 }} />
+                Watch Later
+            </Button>
+
+            <Typography 
+                variant="caption" 
+                sx={{ 
+                    textAlign: "center",
+                    padding: "10px",
+                    color: theme.palette.text.secondary
+                }}
+            >
+                © 2024 MeetEnterprise
             </Typography>
         </Stack>
     );

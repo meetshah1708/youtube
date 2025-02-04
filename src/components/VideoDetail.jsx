@@ -1,11 +1,14 @@
 import { CheckCircle } from "@mui/icons-material";
-import { Box, Stack, Typography, useTheme } from "@mui/material";
+import { Box, Stack, Typography, useTheme, IconButton } from "@mui/material";
 import { useEffect, useState } from "react";
 import ReactPlayer from "react-player";
 import { Link, useParams } from "react-router-dom"
 import Videos from './Videos'
 import Comments from './Comments'
 import Navbar from './Navbar'
+import WatchLaterIcon from '@mui/icons-material/WatchLater';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useWatchLater } from '../contexts/WatchLaterContext';
 const key = import.meta.env.VITE_RAPID_API_YOUTUBE_KEY
 
 
@@ -17,6 +20,9 @@ export default function VideoDetail() {
     const params = useParams();//to get the video id
     // console.log(params)
     const id = params.videoId
+    const { watchLaterItems, addToWatchLater, removeFromWatchLater } = useWatchLater();
+    const [isInWatchLater, setIsInWatchLater] = useState(false);
+
     useEffect(() => {
         const fetchVideo = async () => {
             try {
@@ -34,6 +40,28 @@ export default function VideoDetail() {
         }
        fetchVideo()
     }, [ id ])
+
+    useEffect(() => {
+        if (id) {
+            setIsInWatchLater(watchLaterItems.some(item => item.id === id));
+        }
+    }, [watchLaterItems, id]);
+
+    const handleWatchLater = () => {
+        if (!videoDetail) return;
+        const videoInfo = {
+            id: id, // Use the id from params instead of videoDetail.id
+            title: videoDetail.snippet.title,
+            thumbnail: videoDetail.snippet.thumbnails.medium.url,
+            channelTitle: videoDetail.snippet.channelTitle
+        };
+        if (isInWatchLater) {
+            removeFromWatchLater(id);
+        } else {
+            addToWatchLater(videoInfo);
+        }
+    };
+
     if (!videoDetail?.snippet) return 'Loading ...'
     const { snippet: { title, channelId, channelTitle }, statistics: { viewCount, likeCount }
     } = videoDetail
@@ -62,7 +90,7 @@ export default function VideoDetail() {
                         <Stack direction='row' justifyContent='space-between' py={1} px={2}>
                             <Link to={`/channel/${channelId}`} style={{ textDecoration: 'none' }}>
                                 <Typography 
-                                    variant={{ sm: 'subtitle1', md: 'h6' }}
+                                    variant="body1"
                                     color={theme.palette.mode === 'dark' ? '#fff' : '#000'}
                                     sx={{
                                         '&:hover': {
@@ -96,6 +124,9 @@ export default function VideoDetail() {
                                 >
                                     {parseInt(likeCount).toLocaleString()} likes
                                 </Typography>
+                                <IconButton onClick={handleWatchLater}>
+                                    {isInWatchLater ? <DeleteIcon /> : <WatchLaterIcon />}
+                                </IconButton>
                                 {/* tolocaleString( ) used to make numerical value readable */}
                             </Stack>
                         </Stack>
@@ -108,7 +139,11 @@ export default function VideoDetail() {
                     justifyContent='center' 
                     alignItems='center'
                     sx={{
-                        backgroundColor: theme.palette.mode === 'dark' ? '#0f0f0f' : '#f9f9f9'
+                        backgroundColor: theme.palette.mode === 'dark' ? '#0f0f0f' : '#f9f9f9',
+                        [theme.breakpoints.between('md','lg')]: {
+                            px: 4,
+                            py: 2
+                        }
                     }}
                 >
                     <Typography 

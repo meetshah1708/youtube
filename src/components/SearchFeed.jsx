@@ -23,7 +23,7 @@ export default function SearchFeed() {
                 setIsLoading(true)
                 setError(null)
                 
-                const data = await fetchApi(`https://youtube-v31.p.rapidapi.com/search?part=snippet&q=${searchTerm}&maxResults=50`)
+                const data = await fetchApi(`https://youtube-v311.p.rapidapi.com/search?part=snippet&q=${searchTerm}&maxResults=50`)
 
                 if (!data || !data.items) {
                     throw new Error('No results found')

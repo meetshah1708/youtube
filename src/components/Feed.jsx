@@ -28,9 +28,15 @@ export default function Feed() {
     const fetchVideos = async (category, pageNum) => {
         setIsLoading(true);
         try {
-            const response = await fetch(
-                `https://youtube-v31.p.rapidapi.com/search?part=snippet&q=${category}&maxResults=20&page=${pageNum}&rapidapi-key=${key}`
-            );
+            const url = `https://youtube-v311.p.rapidapi.com/search?part=snippet&q=${category}&maxResults=20&page=${pageNum}`;
+            const options = {
+                method: 'GET',
+                headers: {
+                    'x-rapidapi-key': key,
+                    'x-rapidapi-host': 'youtube-v311.p.rapidapi.com',
+                },
+            };
+            const response = await fetch(url, options);
             const data = await response.json();
             if (!data.items || data.items.length === 0) {
                 setHasMore(false);
@@ -38,6 +44,7 @@ export default function Feed() {
             }
             setVideos((prev) => [...prev, ...data.items]);
         } catch (error) {
+            setHasMore(false);
             console.error("Error fetching videos:", error);
         } finally {
             setIsLoading(false);
@@ -71,7 +78,7 @@ export default function Feed() {
                         setSelectedCategory={setSelectedCategory}
                     />
                     <Typography variant="body2" sx={{ mt: 1, color: "#fff", p: 1 }}>
-                        © MeetEnterprise2023
+                        © MeetEnterprise2025
                     </Typography>
                 </Box>
 
@@ -105,7 +112,7 @@ export default function Feed() {
                                 variant="body2"
                                 sx={{ textAlign: "center", color: "#fff", mt: 2 }}
                             >
-                                <b>Yay! You have seen it all</b>
+                                {/* <b>Yay! You have seen it all</b> */}
                             </Typography>
                         }
                         scrollableTarget="scrollableDiv"

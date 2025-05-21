@@ -1,5 +1,5 @@
 import { CheckCircle } from "@mui/icons-material";
-import { Box, Stack, Typography, useTheme, IconButton } from "@mui/material";
+import { Box, Stack, Typography, useTheme, IconButton, Alert, Container } from "@mui/material";
 import { useEffect, useState } from "react";
 import ReactPlayer from "react-player";
 import { Link, useParams } from "react-router-dom"
@@ -15,7 +15,9 @@ const key = import.meta.env.VITE_RAPID_API_YOUTUBE_KEY
 
 export default function VideoDetail() {
     const [ videoDetail, setVideoDetail ] = useState(null)
-    const [ videos, setVideos ] = useState(null)
+    const [ videos, setVideos ] = useState([]) // Fix: initialize as []
+    const [ error, setError ] = useState(null)
+    const [ relatedError, setRelatedError] = useState(null);
     const theme = useTheme();
     const params = useParams();//to get the video id
     // console.log(params)
@@ -26,15 +28,41 @@ export default function VideoDetail() {
     useEffect(() => {
         const fetchVideo = async () => {
             try {
-                const response = await fetch(`https://youtube-v31.p.rapidapi.com/videos?part=snippet,statistics,contentDetails&id=${id}&rapidapi-key=${key}`)
+                setError(null)
+                setRelatedError(null)
+                const options = {
+                    method: 'GET',
+                    headers: {
+                        'x-rapidapi-key': key,
+                        'x-rapidapi-host': 'youtube-v311.p.rapidapi.com'
+                    }
+                }
+                const response = await fetch(`https://youtube-v311.p.rapidapi.com/videos?part=snippet,statistics,contentDetails&id=${id}`, options)
                 const data = await response.json()
                 // console.log(data?.items)
                 setVideoDetail(data?.items[ 0 ])
 
-                const relatedResponse = await fetch(`https://youtube-v31.p.rapidapi.com/search?part=snippet&relatedToVideoId=${id}&type=video&rapidapi-key=${key}`)
-                const relatedData = await relatedResponse.json()
-                setVideos(relatedData.items)
+                try {
+                    const relatedResponse = await fetch(`https://youtube-v311.p.rapidapi.com/search?part=snippet&relatedToVideoId=${id}&type=video`, options);
+                    const relatedData = await relatedResponse.json();
+                    // Normalize related videos data
+                    const normalized = (relatedData.items || []).map(item => {
+                        if (typeof item.id === 'string') {
+                            return { ...item, id: { videoId: item.id } };
+                        } else if (item.id && item.id.videoId) {
+                            return item;
+                        } else {
+                            return item;
+                        }
+                    });
+                    setVideos(normalized);
+                } catch (err) {
+                    setRelatedError('Failed to load related videos. Please try again later.');
+                    setVideos([]); // Always set to [] on error
+                    console.error('Error fetching related videos:', err);
+                }
             } catch (error) {
+                setError('Failed to load video details. Please try again later.')
                 console.error("Error fetching video details:", error)
             }
         }
@@ -62,6 +90,16 @@ export default function VideoDetail() {
         }
     };
 
+    if (error) {
+        return (
+            <Box minHeight='95vh'>
+                <Navbar />
+                <Container maxWidth="xl" sx={{ pt: 10 }}>
+                    <Alert severity="error">{error}</Alert>
+                </Container>
+            </Box>
+        )
+    }
     if (!videoDetail?.snippet) return 'Loading ...'
     const { snippet: { title, channelId, channelTitle }, statistics: { viewCount, likeCount }
     } = videoDetail
@@ -155,6 +193,9 @@ export default function VideoDetail() {
                     >
                         Related Videos
                     </Typography>
+                    {relatedError && (
+                        <Alert severity="warning" sx={{ mb: 2 }}>{relatedError}</Alert>
+                    )}
                     <Videos videos={videos} direction='column' />
                 </Box>
             </Stack>

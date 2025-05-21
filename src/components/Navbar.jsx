@@ -52,7 +52,6 @@ function Navbar() {
         >
 
             <Typography variant="body2" sx={{ mt: 1, color: "#fff", px: 2 }}>
-                © MeetEnterprise2023
             </Typography>
         </Box>
     );
@@ -135,49 +134,45 @@ function Navbar() {
                                 horizontal: 'right',
                             }}
                         >
-                            {user ? (
-                                <>
-                                    <MenuItem key="email" disabled>
-                                        {user.email}
-                                    </MenuItem>
-                                    <MenuItem 
-                                        key="watchlater" 
-                                        component={Link} 
-                                        to="/watch-later"
-                                        onClick={handleClose}
-                                    >
-                                        Watch Later
-                                    </MenuItem>
-                                    <MenuItem 
-                                        key="logout" 
-                                        onClick={() => {
-                                            handleClose();
-                                            logout();
-                                        }}
-                                    >
-                                        Logout
-                                    </MenuItem>
-                                </>
-                            ) : (
-                                <>
-                                    <MenuItem 
-                                        key="login" 
-                                        component={Link} 
-                                        to="/login"
-                                        onClick={handleClose}
-                                    >
-                                        Login
-                                    </MenuItem>
-                                    <MenuItem 
-                                        key="signup" 
-                                        component={Link} 
-                                        to="/signup"
-                                        onClick={handleClose}
-                                    >
-                                        Sign Up
-                                    </MenuItem>
-                                </>
-                            )}
+                            {user ? [
+                                <MenuItem key="email" disabled>
+                                    {user.email}
+                                </MenuItem>,
+                                <MenuItem 
+                                    key="watchlater" 
+                                    component={Link} 
+                                    to="/watch-later"
+                                    onClick={handleClose}
+                                >
+                                    Watch Later
+                                </MenuItem>,
+                                <MenuItem 
+                                    key="logout" 
+                                    onClick={() => {
+                                        handleClose();
+                                        logout();
+                                    }}
+                                >
+                                    Logout
+                                </MenuItem>
+                            ] : [
+                                <MenuItem 
+                                    key="login" 
+                                    component={Link} 
+                                    to="/login"
+                                    onClick={handleClose}
+                                >
+                                    Login
+                                </MenuItem>,
+                                <MenuItem 
+                                    key="signup" 
+                                    component={Link} 
+                                    to="/signup"
+                                    onClick={handleClose}
+                                >
+                                    Sign Up
+                                </MenuItem>
+                            ]}
                         </MuiMenu>
                         <IconButton
                             sx={{ ml: 1 }}

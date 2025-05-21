@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Box, Container, Typography } from '@mui/material'
+import { Box, Container, Typography, Alert } from '@mui/material'
 import ChannelCard from './ChannelCard'
 import Videos from './Videos'
 import Navbar from './Navbar'
@@ -13,21 +13,22 @@ export default function ChannelDetail() {
     const [channelDetail, setChannelDetail] = useState(null)
     const [videos, setVideos] = useState([])
     const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState(null)
     const { channelId } = useParams()
-    // console.log(params)
     const id = channelId
 
     useEffect(() => {
         const fetchChannelData = async () => {
             try {
                 setIsLoading(true)
+                setError(null)
                 // Fetch channel details
                 const channelResponse = await fetch(
-                    `https://youtube-v31.p.rapidapi.com/channels?part=snippet,statistics&id=${id}`,
+                    `https://youtube-v311.p.rapidapi.com/channels?part=snippet,statistics&id=${id}`,
                     {
                         headers: {
-                            'X-RapidAPI-Key': key,
-                            'X-RapidAPI-Host': 'youtube-v31.p.rapidapi.com'
+                            'x-rapidapi-key': key,
+                            'x-rapidapi-host': 'youtube-v311.p.rapidapi.com'
                         }
                     }
                 )
@@ -36,17 +37,18 @@ export default function ChannelDetail() {
 
                 // Fetch channel videos
                 const videosResponse = await fetch(
-                    `https://youtube-v31.p.rapidapi.com/search?channelId=${id}&part=snippet,id&order=date&maxResults=50`,
+                    `https://youtube-v311.p.rapidapi.com/search?channelId=${id}&part=snippet,id&order=date&maxResults=50`,
                     {
                         headers: {
-                            'X-RapidAPI-Key': key,
-                            'X-RapidAPI-Host': 'youtube-v31.p.rapidapi.com'
+                            'x-rapidapi-key': key,
+                            'x-rapidapi-host': 'youtube-v311.p.rapidapi.com'
                         }
                     }
                 )
                 const videosData = await videosResponse.json()
                 setVideos(videosData.items)
             } catch (error) {
+                setError('Failed to load channel data. Please try again later.')
                 console.error('Error fetching channel data:', error)
             } finally {
                 setIsLoading(false)
@@ -54,6 +56,16 @@ export default function ChannelDetail() {
         }
         fetchChannelData()
     }, [id])
+    if (error) {
+        return (
+            <Box minHeight='95vh'>
+                <Navbar />
+                <Container maxWidth="xl" sx={{ pt: 10 }}>
+                    <Alert severity="error">{error}</Alert>
+                </Container>
+            </Box>
+        )
+    }
     if (!channelDetail?.snippet) return 'Loading...'
 
 

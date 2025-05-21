@@ -71,7 +71,7 @@ export default function SideBar({ selectedCategory, setSelectedCategory }) {
                     color: theme.palette.text.secondary
                 }}
             >
-                © 2024 MeetEnterprise
+                {/* © 2024 MeetEnterprise */}
             </Typography>
         </Stack>
     );

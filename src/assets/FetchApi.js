@@ -11,9 +11,8 @@ const options = {
         maxResults: '50'
     },
     headers: {
-        //to add .env variables in vite
-        'X-RapidAPI-Key': key,
-        'X-RapidAPI-Host': 'youtube-v31.p.rapidapi.com'
+        'x-rapidapi-key': key,
+        'x-rapidapi-host': 'youtube-v311.p.rapidapi.com'
     }
 };
 

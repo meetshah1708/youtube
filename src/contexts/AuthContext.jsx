@@ -8,6 +8,15 @@ const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'devel
   ? 'http://localhost:5000/api' 
   : 'https://youtube-c8u0.onrender.com/api');
 
+// Configure axios defaults
+const api = axios.create({
+    baseURL: API_URL,
+    timeout: 45000, // 45 seconds timeout to handle Render cold starts
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -25,7 +34,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await axios.post(`${API_URL}/login`, { email, password });
+            const response = await api.post('/login', { email, password });
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -33,16 +42,26 @@ export const AuthProvider = ({ children }) => {
                 return { success: true };
             }
         } catch (error) {
+            let errorMessage = 'Login failed. Please try again.';
+
+            if (error.response?.data?.error) {
+                errorMessage = error.response.data.error;
+            } else if (error.code === 'ECONNABORTED') {
+                errorMessage = 'Request timed out. The server might be waking up, please try again.';
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+
             return {
                 success: false,
-                error: error.response?.data?.error || 'Login failed. Please try again.'
+                error: errorMessage
             };
         }
     };
 
     const signup = async (userData) => {
         try {
-            const response = await axios.post(`${API_URL}/signup`, userData);
+            const response = await api.post('/signup', userData);
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -50,9 +69,19 @@ export const AuthProvider = ({ children }) => {
                 return { success: true };
             }
         } catch (error) {
+            let errorMessage = 'Signup failed. Please try again.';
+
+            if (error.response?.data?.error) {
+                errorMessage = error.response.data.error;
+            } else if (error.code === 'ECONNABORTED') {
+                errorMessage = 'Request timed out. The server might be waking up, please try again.';
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+
             return {
                 success: false,
-                error: error.response?.data?.error || 'Signup failed. Please try again.'
+                error: errorMessage
             };
         }
     };

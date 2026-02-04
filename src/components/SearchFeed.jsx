@@ -2,10 +2,8 @@ import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { Box, Typography, Container } from '@mui/material'
 import Videos from './Videos'
-import Navbar from "./Navbar"
 import LoadingSpinner from "./LoadingSpinner"
 import { useTheme } from '@mui/material/styles'
-import { useAuth } from '../contexts/AuthContext'
 import { fetchApi } from '../assets/FetchApi'
 
 export default function SearchFeed() {
@@ -14,7 +12,6 @@ export default function SearchFeed() {
     const [ error, setError ] = useState(null)
     const { searchTerm } = useParams()
     const theme = useTheme()
-    const { user } = useAuth()
     const key = import.meta.env.VITE_RAPID_API_YOUTUBE_KEY
 
     useEffect(() => {
@@ -45,78 +42,60 @@ export default function SearchFeed() {
 
     if (error) {
         return (
-            <Box 
+            <Container
+                maxWidth="xl"
                 sx={{ 
-                    minHeight: '95vh',
-                    backgroundColor: theme.palette.background.default
+                    py: 4
                 }}
             >
-                <Navbar />
-                <Container 
-                    maxWidth="xl" 
-                    sx={{ 
-                        pt: { xs: 10, sm: 12 },
-                        pb: 4
-                    }}
-                >
-                    <Typography color="error" variant="h6" align="center">
-                        {error}
-                    </Typography>
-                </Container>
-            </Box>
+                <Typography color="error" variant="h6" align="center">
+                    {error}
+                </Typography>
+            </Container>
         )
     }
 
     return (
-        <Box 
+        <Container
+            maxWidth="xl"
             sx={{ 
-                minHeight: '95vh',
-                backgroundColor: theme.palette.background.default
+                py: 4
             }}
         >
-            <Navbar />
-            <Container 
-                maxWidth="xl" 
-                sx={{ 
-                    pt: { xs: 10, sm: 12 },
-                    pb: 4
-                }}
-            >
-                {isLoading ? (
-                    <LoadingSpinner message="Searching..." />
-                ) : (
-                    <>
+            {isLoading ? (
+                <LoadingSpinner message="Searching..." />
+            ) : (
+                <>
+                    <Typography
+                        variant="h4"
+                        sx={{
+                            fontWeight: 'bold',
+                            mb: 3,
+                            color: theme.palette.text.primary
+                        }}
+                    >
+                        Search results for{' '}
+                        <span style={{ color: theme.palette.primary.main }}>
+                            {searchTerm}
+                        </span>
+                    </Typography>
+
+                    {videos.length === 0 ? (
                         <Typography 
-                            variant="h4" 
+                            variant="h6"
                             sx={{
-                                fontWeight: 'bold',
-                                mb: 3,
-                                color: theme.palette.text.primary
+                                color: theme.palette.text.secondary,
+                                textAlign: 'center',
+                                mt: 4
                             }}
                         >
-                            Search results for{' '}
-                            <span style={{ color: theme.palette.primary.main }}>
-                                {searchTerm}
-                            </span>
+                            No results found for &quot;{searchTerm}&quot;
                         </Typography>
-
-                        {videos.length === 0 ? (
-                            <Typography 
-                                variant="h6"
-                                sx={{ 
-                                    color: theme.palette.text.secondary,
-                                    textAlign: 'center',
-                                    mt: 4
-                                }}
-                            >
-                                No results found for "{searchTerm}"
-                            </Typography>
-                        ) : (
-                            <Videos videos={videos} />
-                        )}
-                    </>
-                )}
-            </Container>
-        </Box>
+                    ) : (
+                        <Videos videos={videos} />
+                    )}
+                </>
+            )}
+        </Container>
     )
 }

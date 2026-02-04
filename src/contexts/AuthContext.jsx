@@ -3,11 +3,10 @@ import axios from 'axios';
 
 
 const AuthContext = createContext(null);
-// Update API_URL configuration
-const API_URL = import.meta.env.MODE === 'development' 
+// Update API_URL configuration to allow VITE_API_URL override
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'development'
   ? 'http://localhost:5000/api' 
-  : 'https://youtube-c8u0.onrender.com/api';// This will be '/api' in development due to proxy
-// console.log(API_URL);
+  : 'https://youtube-c8u0.onrender.com/api');
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -71,4 +70,4 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-export const useAuth = () => useContext(AuthContext); 
+export const useAuth = () => useContext(AuthContext);

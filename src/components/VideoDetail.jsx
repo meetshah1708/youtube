@@ -5,7 +5,6 @@ import ReactPlayer from "react-player";
 import { Link, useParams } from "react-router-dom"
 import Videos from './Videos'
 import Comments from './Comments'
-import Navbar from './Navbar'
 import WatchLaterIcon from '@mui/icons-material/WatchLater';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useWatchLater } from '../contexts/WatchLaterContext';
@@ -92,12 +91,9 @@ export default function VideoDetail() {
 
     if (error) {
         return (
-            <Box minHeight='95vh'>
-                <Navbar />
-                <Container maxWidth="xl" sx={{ pt: 10 }}>
-                    <Alert severity="error">{error}</Alert>
-                </Container>
-            </Box>
+            <Container maxWidth="xl" sx={{ pt: 4 }}>
+                <Alert severity="error">{error}</Alert>
+            </Container>
         )
     }
     if (!videoDetail?.snippet) return 'Loading ...'
@@ -107,11 +103,9 @@ export default function VideoDetail() {
         <Box 
             minHeight='95vh' 
             sx={{ 
-                paddingTop: '80px',
                 backgroundColor: theme.palette.mode === 'dark' ? '#0f0f0f' : '#f9f9f9'
             }}
         >
-            <Navbar />
             <Stack direction={{ xs: 'column', md: 'row' }}>
                 <Box flex={1}>
                     <Box sx={{ width: '100%', position: 'sticky', top: '86px' }}>

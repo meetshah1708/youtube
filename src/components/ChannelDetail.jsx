@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom'
 import { Box, Container, Typography, Alert } from '@mui/material'
 import ChannelCard from './ChannelCard'
 import Videos from './Videos'
-import Navbar from './Navbar'
 import { useTheme } from '@mui/material/styles'
 
 const key = import.meta.env.VITE_RAPID_API_YOUTUBE_KEY
@@ -58,12 +57,9 @@ export default function ChannelDetail() {
     }, [id])
     if (error) {
         return (
-            <Box minHeight='95vh'>
-                <Navbar />
-                <Container maxWidth="xl" sx={{ pt: 10 }}>
-                    <Alert severity="error">{error}</Alert>
-                </Container>
-            </Box>
+            <Container maxWidth="xl" sx={{ pt: 4 }}>
+                <Alert severity="error">{error}</Alert>
+            </Container>
         )
     }
     if (!channelDetail?.snippet) return 'Loading...'
@@ -71,7 +67,6 @@ export default function ChannelDetail() {
 
     return (
         <Box minHeight='95vh'>
-            <Navbar />
             <Box>
                 <div style={{
                     background: 'linear-gradient(90deg , rgba(0,238,247,1) 0%, rgba(206,3,184,1)100% , rgba(0,212,255,1)100% )',

@@ -6,13 +6,12 @@ import {
     IconButton,
     useTheme,
     Box,
-    Button,
     Drawer,
     useMediaQuery,
     MenuItem,
     Menu as MuiMenu
 } from "@mui/material";
-import { Menu, YouTube, Brightness4, Brightness7,AccountCircle } from "@mui/icons-material";
+import { YouTube, Brightness4, Brightness7,AccountCircle } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { useContext, useState } from "react";
 import { ColorModeContext } from "../contexts/ThemeContext";

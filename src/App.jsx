@@ -6,54 +6,68 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import ChannelDetail from "./components/ChannelDetail"
 import Login from "./components/Login"
 import SignUp from "./components/SignUp"
-import { Box, CssBaseline } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
+import { CssBaseline } from '@mui/material'
 import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import ErrorBoundary from './components/ErrorBoundary'
-import Navbar from "./components/Navbar.jsx";
 import {WatchLaterProvider} from './contexts/WatchLaterContext'
 import {WatchLater} from "./components/WatchLater.jsx";
+import MainLayout from "./components/MainLayout";
 
 function App() {
-    const theme = useTheme();
-
     return (
         <ErrorBoundary>
         <AuthProvider>
             <WatchLaterProvider>
-            <Box sx={{ 
-                bgcolor: theme.palette.background.default,
-                minHeight: '100vh',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}>
                 <CssBaseline />
                 <BrowserRouter>
                     <Routes>
+                        {/* Auth Routes - No MainLayout */}
                         <Route path="/login" element={<Login />} />
                         <Route path="/signup" element={<SignUp />} />
+
+                        {/* Protected Routes */}
                         <Route path="/" element={
                             <ProtectedRoute>
-                                <Navbar/>
-                                <Feed selectedCategory="new"/>
+                                <MainLayout>
+                                    <Feed selectedCategory="new"/>
+                                </MainLayout>
                             </ProtectedRoute>
                         } />
-                        <Route path="/videos" exact element={<Videos />} />
+
+                        <Route path="/videos" exact element={
+                             <MainLayout>
+                                <Videos />
+                            </MainLayout>
+                        } />
+
                         <Route path="/video/:videoId" element={
                             <ProtectedRoute>
-                                <VideoDetail />
+                                <MainLayout>
+                                    <VideoDetail />
+                                </MainLayout>
                             </ProtectedRoute>
                         } />
-                        <Route path="/watch-later" element={<WatchLater />} />
 
-                        <Route path="/search/:searchTerm" exact element={<SearchFeed />} />
-                        <Route path="/channel/:channelId" element={<ChannelDetail />} />
+                        <Route path="/watch-later" element={
+                            <MainLayout>
+                                <WatchLater />
+                            </MainLayout>
+                        } />
+
+                        <Route path="/search/:searchTerm" exact element={
+                            <MainLayout>
+                                <SearchFeed />
+                            </MainLayout>
+                        } />
+
+                        <Route path="/channel/:channelId" element={
+                            <MainLayout>
+                                <ChannelDetail />
+                            </MainLayout>
+                        } />
                     </Routes>
                 </BrowserRouter>
-            </Box>
             </WatchLaterProvider>
         </AuthProvider>
         </ErrorBoundary>

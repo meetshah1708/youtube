@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { Box, TextField, Button, Typography, Paper, Alert, CircularProgress } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Box, TextField, Button, Typography, Paper, Alert, CircularProgress, Fade } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import { useAuth } from '../contexts/AuthContext';
+import { YouTube } from "@mui/icons-material";
 
 export default function SignUp() {
     const [formData, setFormData] = useState({
@@ -12,9 +13,23 @@ export default function SignUp() {
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showSlowServerMessage, setShowSlowServerMessage] = useState(false);
+
     const navigate = useNavigate();
     const theme = useTheme();
     const { signup } = useAuth();
+
+    useEffect(() => {
+        let timer;
+        if (loading) {
+            timer = setTimeout(() => {
+                setShowSlowServerMessage(true);
+            }, 2000);
+        } else {
+            setShowSlowServerMessage(false);
+        }
+        return () => clearTimeout(timer);
+    }, [loading]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,46 +51,50 @@ export default function SignUp() {
     };
 
     return (
-        <Box
-            sx={{
+        <Box sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '100vh',
+            bgcolor: theme.palette.background.default,
+            background: theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)'
+                : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+            padding: { xs: 2, sm: 4 }
+        }}>
+            <Paper elevation={10} sx={{
+                p: { xs: 3, sm: 5 },
+                width: '100%',
+                maxWidth: 400,
+                bgcolor: theme.palette.background.paper,
+                borderRadius: 4,
                 display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                minHeight: '100vh',
-                bgcolor: theme.palette.background.default,
-                padding: 2,
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                margin: 'auto',
-                overflow: 'auto'
-            }}
-        >
-            <Paper
-                elevation={6}
-                sx={{
-                    p: 4,
-                    width: '100%',
-                    maxWidth: 400,
-                    bgcolor: theme.palette.background.paper,
-                    borderRadius: 2,
-                    position: 'relative'
-                }}
-            >
+                flexDirection: 'column',
+                alignItems: 'center'
+            }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                    <YouTube sx={{ color: "red", fontSize: "40px", mr: 1 }} />
+                    <Typography variant="h5" fontWeight="bold">
+                        METube
+                    </Typography>
+                </Box>
+
                 <Typography variant="h4" component="h1" gutterBottom align="center" 
-                    sx={{ color: theme.palette.text.primary, mb: 4 }}>
-                    Sign Up
+                    sx={{ color: theme.palette.text.primary, mb: 1, fontWeight: 600 }}>
+                    Create Account
+                </Typography>
+
+                <Typography variant="body2" color="textSecondary" sx={{ mb: 4 }}>
+                    Join the community today
                 </Typography>
 
                 {error && (
-                    <Alert severity="error" sx={{ mb: 3 }}>
+                    <Alert severity="error" sx={{ mb: 3, width: '100%' }}>
                         {error}
                     </Alert>
                 )}
 
-                <form onSubmit={handleSubmit}>
+                <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
                     <TextField
                         fullWidth
                         label="Username"
@@ -83,14 +102,8 @@ export default function SignUp() {
                         required
                         value={formData.username}
                         onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                        sx={{
-                            mb: 2,
-                            '& .MuiOutlinedInput-root': {
-                                '&:hover fieldset': {
-                                    borderColor: theme.palette.primary.main,
-                                },
-                            },
-                        }}
+                        sx={{ mb: 2.5 }}
+                        variant="outlined"
                     />
                     <TextField
                         fullWidth
@@ -99,14 +112,8 @@ export default function SignUp() {
                         required
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        sx={{
-                            mb: 2,
-                            '& .MuiOutlinedInput-root': {
-                                '&:hover fieldset': {
-                                    borderColor: theme.palette.primary.main,
-                                },
-                            },
-                        }}
+                        sx={{ mb: 2.5 }}
+                        variant="outlined"
                     />
                     <TextField
                         fullWidth
@@ -115,37 +122,39 @@ export default function SignUp() {
                         required
                         value={formData.password}
                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        sx={{
-                            mb: 3,
-                            '& .MuiOutlinedInput-root': {
-                                '&:hover fieldset': {
-                                    borderColor: theme.palette.primary.main,
-                                },
-                            },
-                        }}
+                        sx={{ mb: 3 }}
+                        variant="outlined"
                     />
+
                     <Button
                         type="submit"
                         fullWidth
                         variant="contained"
                         disabled={loading}
+                        size="large"
                         sx={{
                             mb: 2,
                             py: 1.5,
-                            bgcolor: theme.palette.primary.main,
-                            '&:hover': {
-                                bgcolor: theme.palette.primary.dark,
-                            },
+                            borderRadius: 2,
+                            fontWeight: 'bold',
+                            textTransform: 'none',
+                            fontSize: '1rem'
                         }}
                     >
-                        {loading ? <CircularProgress size={24} /> : 'Sign Up'}
+                        {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign Up'}
                     </Button>
-                </form>
+                </Box>
+
+                <Fade in={showSlowServerMessage}>
+                    <Alert severity="info" sx={{ mt: 2, width: '100%' }}>
+                        Waking up the server... This might take up to 30 seconds.
+                    </Alert>
+                </Fade>
 
                 <Typography 
                     variant="body2" 
                     align="center" 
-                    sx={{ mt: 2 }} 
+                    sx={{ mt: 3 }}
                     color={theme.palette.text.secondary}
                 >
                     Already have an account?{' '}
@@ -154,7 +163,7 @@ export default function SignUp() {
                         style={{ 
                             color: theme.palette.primary.main,
                             textDecoration: 'none',
-                            fontWeight: 500
+                            fontWeight: 600
                         }}
                     >
                         Login
@@ -163,4 +172,4 @@ export default function SignUp() {
             </Paper>
         </Box>
     );
-} 
+}

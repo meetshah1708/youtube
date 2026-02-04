@@ -62,7 +62,7 @@ export default function Feed() {
             {/* This Stack is set to be responsive: column on small screens, row on larger */}
             <Stack
                 direction={{ xs: "column", md: "row" }}
-                sx={{ flex: 1, mt: { xs: 8, md: 8 } }}
+                sx={{ flex: 1 }}
             >
                 {/* Sidebar: always visible but width changes with breakpoints */}
                 <Box

@@ -11,7 +11,7 @@ const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'devel
 // Configure axios defaults
 const api = axios.create({
     baseURL: API_URL,
-    timeout: 45000, // 45 seconds timeout to handle Render cold starts
+    timeout: 120000, // 120 seconds timeout to handle Render cold starts and DB connections
     headers: {
         'Content-Type': 'application/json'
     }
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
             if (error.response?.data?.error) {
                 errorMessage = error.response.data.error;
             } else if (error.code === 'ECONNABORTED') {
-                errorMessage = 'Request timed out. The server might be waking up, please try again.';
+                errorMessage = 'Request timed out. The server might be waking up or connecting to the database. Please try again.';
             } else if (error.message) {
                 errorMessage = error.message;
             }
@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }) => {
             if (error.response?.data?.error) {
                 errorMessage = error.response.data.error;
             } else if (error.code === 'ECONNABORTED') {
-                errorMessage = 'Request timed out. The server might be waking up, please try again.';
+                errorMessage = 'Request timed out. The server might be waking up or connecting to the database. Please try again.';
             } else if (error.message) {
                 errorMessage = error.message;
             }

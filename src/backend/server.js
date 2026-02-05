@@ -31,21 +31,15 @@ app.use(cors({
         'http://localhost:5173',
         'https://youtube-c8u0.onrender.com'
     ],
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
 }));
 
 app.use(express.json());
 
 // Add OPTIONS handling for preflight requests
 app.options('*', cors());
-
-// Add headers middleware
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    next();
-});
 
 // Check if environment variables are loaded
 if (!process.env.MONGODB_URI) {

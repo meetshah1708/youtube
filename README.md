@@ -1,123 +1,45 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+# METube - YouTube Clone
 
-/**
-* Sample video data structure:
-* {
-*   id: string,
-*   title: string,
-*   thumbnailUrl: string,
-*   description: string,
-*   ...
-* }
-  */
-
-function VideoItem({ video, onAddToWatchLater }) {
-return (
-<div style={{ border: '1px solid #ccc', marginBottom: '1rem', padding: '1rem' }}>
-<img src={video.thumbnailUrl} alt={video.title} style={{ width: '100px' }} />
-<h3>{video.title}</h3>
-<p>{video.description}</p>
-<button onClick={() => onAddToWatchLater(video)}>Watch Later</button>
-</div>
-);
-}
-
-VideoItem.propTypes = {
-video: PropTypes.shape({
-id: PropTypes.string.isRequired,
-title: PropTypes.string.isRequired,
-thumbnailUrl: PropTypes.string.isRequired,
-description: PropTypes.string,
-}).isRequired,
-onAddToWatchLater: PropTypes.func.isRequired,
-};
-
-function WatchLaterList({ videos }) {
-return (
-<div style={{ border: '1px solid #aaa', padding: '1rem', marginTop: '2rem' }}>
-<h2>Watch Later</h2>
-{videos.length === 0 ? (
-<p>No videos saved for later.</p>
-) : (
-videos.map((video) => (
-<div key={video.id} style={{ marginBottom: '1rem' }}>
-<strong>{video.title}</strong>
-</div>
-))
-)}
-</div>
-);
-}
-
-WatchLaterList.propTypes = {
-videos: PropTypes.arrayOf(
-PropTypes.shape({
-id: PropTypes.string.isRequired,
-title: PropTypes.string.isRequired,
-thumbnailUrl: PropTypes.string.isRequired,
-description: PropTypes.string,
-}),
-).isRequired,
-};
-
-export default function HomePage() {
-const [videos] = useState([
-{
-id: 'video1',
-title: 'Sample Video 1',
-thumbnailUrl: 'https://via.placeholder.com/200x100',
-description: 'An example of a video description.',
-},
-{
-id: 'video2',
-title: 'Sample Video 2',
-thumbnailUrl: 'https://via.placeholder.com/200x100',
-description: 'Another sample video description.',
-},
-// ... add more videos as needed
-]);
-
-const [watchLater, setWatchLater] = useState([]);
-
-const handleAddToWatchLater = (video) => {
-if (!watchLater.find((item) => item.id === video.id)) {
-setWatchLater([...watchLater, video]);
-}
-};
-
-return (
-<div style={{ margin: '2rem' }}>
-<h1>Your YouTube Clone</h1>
-<h2>All Videos</h2>
-{videos.map((video) => (
-<VideoItem key={video.id} video={video} onAddToWatchLater={handleAddToWatchLater} />
-))}
-
-      <WatchLaterList videos={watchLater} />
-    </div>
-);
-}
-
-# YouTube Clone React Application
-
-## 📝 Project Overview
-A modern YouTube clone built with React and Vite, offering a seamless video streaming experience.
+A modern YouTube clone built with React, Vite, and Material-UI featuring user authentication, video streaming, and a Watch Later feature.
 
 ## 🚀 Tech Stack
-- React.js
-- JavaScript (94.6%)
-- CSS (4.0%)
-- HTML (1.4%)
-- Vite (Build Tool)
+
+### Frontend
+- **React 18** - UI library
+- **Vite** - Build tool with HMR support
+- **Material-UI (MUI)** - Component library for modern UI
+- **React Router** - Client-side routing
+- **Axios** - HTTP client
+- **React Player** - Video playback
+- **React Infinite Scroll** - Infinite scrolling for feeds
+
+### Backend
+- **Node.js & Express** - Server framework
+- **MongoDB & Mongoose** - Database and ODM
+- **JWT** - Authentication tokens
+- **bcryptjs** - Password hashing
+- **Helmet** - Security middleware
 
 ## ⚙️ Features
-- Hot Module Replacement (HMR)
-- React Integration
-- Modern Development Environment
-- Fast Refresh Support
+
+- 🔐 **User Authentication** - Secure signup/login with JWT tokens
+- 🎥 **Video Streaming** - Watch YouTube videos via RapidAPI
+- 🔍 **Search Functionality** - Search for videos across YouTube
+- 📺 **Channel Pages** - View channel details and videos
+- ⏰ **Watch Later** - Save videos to watch later (persisted in localStorage)
+- 🌓 **Dark/Light Mode** - Theme toggle for user preference
+- 📱 **Responsive Design** - Works on mobile, tablet, and desktop
+- 🔒 **Protected Routes** - Auth-required pages for logged-in users
 
 ## 🛠️ Installation & Setup
+
+### Prerequisites
+- Node.js (v16+)
+- MongoDB instance (local or cloud)
+- RapidAPI key for YouTube API
+
+### Frontend Setup
+
 ```bash
 # Clone the repository
 git clone https://github.com/meetshah1708/youtube.git
@@ -128,47 +50,148 @@ cd youtube
 # Install dependencies
 npm install
 
+# Create .env file with your RapidAPI key
+echo "VITE_RAPID_API_YOUTUBE_KEY=your_rapidapi_key_here" > .env
+
 # Start development server
 npm run dev
 ```
 
+### Backend Setup
+
+```bash
+# Navigate to backend directory
+cd src/backend
+
+# Install backend dependencies
+npm install
+
+# Create .env file with required variables
+cat > .env << EOF
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
+PORT=5000
+EOF
+
+# Start backend server
+node server.js
+```
+
 ## 🏗️ Project Structure
+
 ```
 youtube/
+├── public/
+│   └── manifest.json
 ├── src/
-│   ├── components/
 │   ├── assets/
-│   └── App.jsx
+│   │   ├── FetchApi.js
+│   │   └── youtube.js
+│   ├── backend/
+│   │   ├── server.js          # Express server & API routes
+│   │   ├── middleware/
+│   │   │   └── errorHandler.js
+│   │   ├── package.json
+│   │   └── render.yaml
+│   ├── components/
+│   │   ├── ChannelCard.jsx
+│   │   ├── ChannelDetail.jsx
+│   │   ├── Comments.jsx
+│   │   ├── ErrorBoundary.jsx
+│   │   ├── Feed.jsx
+│   │   ├── LoadingSpinner.jsx
+│   │   ├── Login.jsx
+│   │   ├── Navbar.jsx
+│   │   ├── ProtectedRoute.jsx
+│   │   ├── SearchBar.jsx
+│   │   ├── SearchFeed.jsx
+│   │   ├── SideBar.jsx
+│   │   ├── SignUp.jsx
+│   │   ├── SkeletonCard.jsx
+│   │   ├── VideoCard.jsx
+│   │   ├── VideoDetail.jsx
+│   │   ├── Videos.jsx
+│   │   └── WatchLater.jsx
+│   ├── contexts/
+│   │   ├── AuthContext.jsx    # Authentication state management
+│   │   ├── ThemeContext.jsx   # Dark/Light mode toggle
+│   │   └── WatchLaterContext.jsx
+│   ├── hooks/
+│   │   └── useResponsive.js
+│   ├── styles/
+│   │   └── animations.js
+│   ├── theme/
+│   │   └── theme.js
+│   ├── App.jsx
+│   ├── App.css
+│   ├── config.js
+│   ├── index.css
+│   └── main.jsx
+├── index.html
 ├── package.json
 ├── vite.config.js
-└── index.html
+└── README.md
 ```
 
-## 📦 Scripts
-```json
-{
-  "dev": "Start development server",
-  "build": "Build for production",
-  "preview": "Preview production build"
-}
+## 📦 Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server with HMR |
+| `npm run build` | Build for production |
+| `npm run preview` | Preview production build locally |
+
+## 🔧 Environment Variables
+
+### Frontend (.env)
+```
+VITE_RAPID_API_YOUTUBE_KEY=your_rapidapi_key
 ```
 
-## 🔧 Configuration
-- ESLint configured for code quality
-- Vite optimized build setup
-- React-specific optimization
+### Backend (src/backend/.env)
+```
+MONGODB_URI=mongodb+srv://...
+JWT_SECRET=your_secret_key
+PORT=5000
+```
+
+## 🌐 API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/signup` | Register new user |
+| POST | `/api/login` | Authenticate user |
+| GET | `/profile` | Get user profile (protected) |
+| GET | `/health` | Health check endpoint |
+
+## 📱 Responsive Breakpoints
+
+- **Mobile**: < 600px
+- **Tablet**: 600px - 960px
+- **Desktop**: > 960px
+
+## 🚀 Deployment
+
+### Frontend (Vercel)
+The frontend is deployed on Vercel at: `https://youtube-meet.vercel.app`
+
+### Backend (Render)
+The backend API is deployed on Render at: `https://youtube-c8u0.onrender.com`
 
 ## 🤝 Contributing
+
 1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
-This project is licensed under the MIT License
+
+This project is licensed under the MIT License.
 
 ## 📞 Contact
+
 - GitHub: [@meetshah1708](https://github.com/meetshah1708)
 
 

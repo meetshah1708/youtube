@@ -78,7 +78,7 @@ export default function Feed() {
                         setSelectedCategory={setSelectedCategory}
                     />
                     <Typography variant="body2" sx={{ mt: 1, color: "#fff", p: 1 }}>
-                        © MeetEnterprise2025
+                        © MeetEnterprise 2026
                     </Typography>
                 </Box>
 

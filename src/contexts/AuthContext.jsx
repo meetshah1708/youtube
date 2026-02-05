@@ -3,11 +3,10 @@ import axios from 'axios';
 
 
 const AuthContext = createContext(null);
-// Update API_URL configuration
-const API_URL = import.meta.env.MODE === 'development' 
-  ? 'http://localhost:5000/api' 
-  : 'https://youtube-c8u0.onrender.com/api';// This will be '/api' in development due to proxy
-// console.log(API_URL);
+// API URL: use proxy in development, direct URL in production
+const API_URL = import.meta.env.PROD 
+  ? 'https://youtube-c8u0.onrender.com/api' 
+  : '/api';
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -33,6 +32,7 @@ export const AuthProvider = ({ children }) => {
                 setUser(response.data.user);
                 return { success: true };
             }
+            return { success: false, error: 'Invalid response from server' };
         } catch (error) {
             return {
                 success: false,
@@ -50,6 +50,7 @@ export const AuthProvider = ({ children }) => {
                 setUser(response.data.user);
                 return { success: true };
             }
+            return { success: false, error: 'Invalid response from server' };
         } catch (error) {
             return {
                 success: false,

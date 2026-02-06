@@ -9,6 +9,7 @@ import Navbar from './Navbar'
 import WatchLaterIcon from '@mui/icons-material/WatchLater';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useWatchLater } from '../contexts/WatchLaterContext';
+import { useHistory } from '../contexts/HistoryContext';
 const key = import.meta.env.VITE_RAPID_API_YOUTUBE_KEY
 
 
@@ -23,6 +24,7 @@ export default function VideoDetail() {
     // console.log(params)
     const id = params.videoId
     const { watchLaterItems, addToWatchLater, removeFromWatchLater } = useWatchLater();
+    const { addToHistory } = useHistory();
     const [isInWatchLater, setIsInWatchLater] = useState(false);
 
     useEffect(() => {
@@ -74,6 +76,18 @@ export default function VideoDetail() {
             setIsInWatchLater(watchLaterItems.some(item => item.id === id));
         }
     }, [watchLaterItems, id]);
+
+    // Track video in watch history when video details are loaded
+    useEffect(() => {
+        if (videoDetail?.snippet) {
+            addToHistory({
+                id: id,
+                title: videoDetail.snippet.title,
+                thumbnail: videoDetail.snippet.thumbnails?.medium?.url || videoDetail.snippet.thumbnails?.default?.url,
+                channelTitle: videoDetail.snippet.channelTitle
+            });
+        }
+    }, [videoDetail, id, addToHistory]);
 
     const handleWatchLater = () => {
         if (!videoDetail) return;

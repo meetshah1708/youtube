@@ -14,6 +14,8 @@ import ErrorBoundary from './components/ErrorBoundary'
 import Navbar from "./components/Navbar.jsx";
 import {WatchLaterProvider} from './contexts/WatchLaterContext'
 import {WatchLater} from "./components/WatchLater.jsx";
+import {HistoryProvider} from './contexts/HistoryContext'
+import {History} from "./components/History.jsx";
 
 function App() {
     const theme = useTheme();
@@ -22,6 +24,7 @@ function App() {
         <ErrorBoundary>
         <AuthProvider>
             <WatchLaterProvider>
+            <HistoryProvider>
             <Box sx={{ 
                 bgcolor: theme.palette.background.default,
                 minHeight: '100vh',
@@ -48,12 +51,14 @@ function App() {
                             </ProtectedRoute>
                         } />
                         <Route path="/watch-later" element={<WatchLater />} />
+                        <Route path="/history" element={<History />} />
 
                         <Route path="/search/:searchTerm" exact element={<SearchFeed />} />
                         <Route path="/channel/:channelId" element={<ChannelDetail />} />
                     </Routes>
                 </BrowserRouter>
             </Box>
+            </HistoryProvider>
             </WatchLaterProvider>
         </AuthProvider>
         </ErrorBoundary>

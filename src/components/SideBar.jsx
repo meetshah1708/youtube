@@ -4,6 +4,7 @@ import { Stack, Button, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { categories } from "../assets/youtube";
 import WatchLater from '@mui/icons-material/WatchLater';
+import HistoryIcon from '@mui/icons-material/History';
 import { Link } from 'react-router-dom';
 
 export default function SideBar({ selectedCategory, setSelectedCategory }) {
@@ -61,6 +62,27 @@ export default function SideBar({ selectedCategory, setSelectedCategory }) {
             >
                 <WatchLater sx={{ mr: 2 }} />
                 Watch Later
+            </Button>
+
+            <Button
+                component={Link}
+                to="/history"
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    backgroundColor: "transparent",
+                    color: theme.palette.text.primary,
+                    textTransform: "none",
+                    padding: "10px 20px",
+                    "&:hover": {
+                        backgroundColor: theme.palette.primary.main,
+                        color: "#fff"
+                    }
+                }}
+            >
+                <HistoryIcon sx={{ mr: 2 }} />
+                History
             </Button>
 
             <Typography 

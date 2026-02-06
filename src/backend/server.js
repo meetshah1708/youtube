@@ -52,12 +52,13 @@ if (!process.env.JWT_SECRET) {
     process.exit(1);
 }
 
-// MongoDB Connection with strictQuery setting
+// MongoDB Connection with strictQuery setting and optimized pool
 mongoose.set('strictQuery', false);
 mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     serverSelectionTimeoutMS: 5000,
+    maxPoolSize: 10,
+    minPoolSize: 2,
+    socketTimeoutMS: 45000,
 })
 .then(() => console.log('MongoDB connected'))
 .catch(err => {
@@ -72,14 +73,16 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         trim: true,
-        minlength: 3
+        minlength: 3,
+        index: true
     },
     email: {
         type: String,
         required: true,
         unique: true,
         trim: true,
-        lowercase: true
+        lowercase: true,
+        index: true
     },
     password: {
         type: String,
@@ -91,6 +94,9 @@ const userSchema = new mongoose.Schema({
         default: Date.now
     }
 });
+
+// Create compound index for faster user lookups
+userSchema.index({ email: 1, username: 1 });
 
 const User = mongoose.model('User', userSchema);
 

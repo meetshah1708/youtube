@@ -8,6 +8,11 @@ const API_URL = import.meta.env.PROD
   ? 'https://youtube-c8u0.onrender.com/api' 
   : '/api';
 
+// Configure axios with timeout for auth requests
+const authAxios = axios.create({
+    timeout: 30000, // 30 second timeout
+});
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -25,7 +30,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await axios.post(`${API_URL}/login`, { email, password });
+            const response = await authAxios.post(`${API_URL}/login`, { email, password });
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -34,16 +39,19 @@ export const AuthProvider = ({ children }) => {
             }
             return { success: false, error: 'Invalid response from server' };
         } catch (error) {
+            const errorMessage = error.code === 'ECONNABORTED' 
+                ? 'Server is starting up, please try again in a few seconds.'
+                : error.response?.data?.error || 'Login failed. Please try again.';
             return {
                 success: false,
-                error: error.response?.data?.error || 'Login failed. Please try again.'
+                error: errorMessage
             };
         }
     };
 
     const signup = async (userData) => {
         try {
-            const response = await axios.post(`${API_URL}/signup`, userData);
+            const response = await authAxios.post(`${API_URL}/signup`, userData);
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -52,9 +60,12 @@ export const AuthProvider = ({ children }) => {
             }
             return { success: false, error: 'Invalid response from server' };
         } catch (error) {
+            const errorMessage = error.code === 'ECONNABORTED' 
+                ? 'Server is starting up, please try again in a few seconds.'
+                : error.response?.data?.error || 'Signup failed. Please try again.';
             return {
                 success: false,
-                error: error.response?.data?.error || 'Signup failed. Please try again.'
+                error: errorMessage
             };
         }
     };

@@ -16,6 +16,8 @@ import {WatchLaterProvider} from './contexts/WatchLaterContext'
 import {WatchLater} from "./components/WatchLater.jsx";
 import {HistoryProvider} from './contexts/HistoryContext'
 import {History} from "./components/History.jsx";
+import {LikedVideosProvider} from './contexts/LikedVideosContext'
+import {LikedVideos} from "./components/LikedVideos.jsx";
 
 function App() {
     const theme = useTheme();
@@ -25,6 +27,7 @@ function App() {
         <AuthProvider>
             <WatchLaterProvider>
             <HistoryProvider>
+            <LikedVideosProvider>
             <Box sx={{ 
                 bgcolor: theme.palette.background.default,
                 minHeight: '100vh',
@@ -52,12 +55,14 @@ function App() {
                         } />
                         <Route path="/watch-later" element={<WatchLater />} />
                         <Route path="/history" element={<History />} />
+                        <Route path="/liked-videos" element={<LikedVideos />} />
 
                         <Route path="/search/:searchTerm" exact element={<SearchFeed />} />
                         <Route path="/channel/:channelId" element={<ChannelDetail />} />
                     </Routes>
                 </BrowserRouter>
             </Box>
+            </LikedVideosProvider>
             </HistoryProvider>
             </WatchLaterProvider>
         </AuthProvider>

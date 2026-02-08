@@ -147,6 +147,14 @@ function Navbar() {
                                     Watch Later
                                 </MenuItem>,
                                 <MenuItem 
+                                    key="likedvideos" 
+                                    component={Link} 
+                                    to="/liked-videos"
+                                    onClick={handleClose}
+                                >
+                                    Liked Videos
+                                </MenuItem>,
+                                <MenuItem 
                                     key="logout" 
                                     onClick={() => {
                                         handleClose();

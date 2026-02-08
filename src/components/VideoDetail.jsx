@@ -8,8 +8,11 @@ import Comments from './Comments'
 import Navbar from './Navbar'
 import WatchLaterIcon from '@mui/icons-material/WatchLater';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import { useWatchLater } from '../contexts/WatchLaterContext';
 import { useHistory } from '../contexts/HistoryContext';
+import { useLikedVideos } from '../contexts/LikedVideosContext';
 const key = import.meta.env.VITE_RAPID_API_YOUTUBE_KEY
 
 
@@ -25,6 +28,7 @@ export default function VideoDetail() {
     const id = params.videoId
     const { watchLaterItems, addToWatchLater, removeFromWatchLater } = useWatchLater();
     const { addToHistory } = useHistory();
+    const { isVideoLiked, addToLikedVideos, removeFromLikedVideos } = useLikedVideos();
     const [isInWatchLater, setIsInWatchLater] = useState(false);
 
     useEffect(() => {
@@ -104,6 +108,21 @@ export default function VideoDetail() {
         }
     };
 
+    const handleLike = () => {
+        if (!videoDetail) return;
+        const videoInfo = {
+            id: id,
+            title: videoDetail.snippet.title,
+            thumbnail: videoDetail.snippet.thumbnails.medium.url,
+            channelTitle: videoDetail.snippet.channelTitle
+        };
+        if (isVideoLiked(id)) {
+            removeFromLikedVideos(id);
+        } else {
+            addToLikedVideos(videoInfo);
+        }
+    };
+
     if (error) {
         return (
             <Box minHeight='95vh'>
@@ -176,6 +195,14 @@ export default function VideoDetail() {
                                 >
                                     {parseInt(likeCount).toLocaleString()} likes
                                 </Typography>
+                                <IconButton 
+                                    onClick={handleLike}
+                                    sx={{
+                                        color: isVideoLiked(id) ? theme.palette.primary.main : 'inherit'
+                                    }}
+                                >
+                                    {isVideoLiked(id) ? <ThumbUpIcon /> : <ThumbUpOutlinedIcon />}
+                                </IconButton>
                                 <IconButton onClick={handleWatchLater}>
                                     {isInWatchLater ? <DeleteIcon /> : <WatchLaterIcon />}
                                 </IconButton>

@@ -10,9 +10,14 @@ import WatchLaterIcon from '@mui/icons-material/WatchLater';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
+import ShareIcon from '@mui/icons-material/Share';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import { useWatchLater } from '../contexts/WatchLaterContext';
 import { useHistory } from '../contexts/HistoryContext';
 import { useLikedVideos } from '../contexts/LikedVideosContext';
+import ShareDialog from './ShareDialog';
+import AddToPlaylistDialog from './AddToPlaylistDialog';
+import VideoDescription from './VideoDescription';
 const key = import.meta.env.VITE_RAPID_API_YOUTUBE_KEY
 
 
@@ -30,6 +35,8 @@ export default function VideoDetail() {
     const { addToHistory } = useHistory();
     const { isVideoLiked, addToLikedVideos, removeFromLikedVideos } = useLikedVideos();
     const [isInWatchLater, setIsInWatchLater] = useState(false);
+    const [shareOpen, setShareOpen] = useState(false);
+    const [playlistDialogOpen, setPlaylistDialogOpen] = useState(false);
 
     useEffect(() => {
         const fetchVideo = async () => {
@@ -206,9 +213,19 @@ export default function VideoDetail() {
                                 <IconButton onClick={handleWatchLater}>
                                     {isInWatchLater ? <DeleteIcon /> : <WatchLaterIcon />}
                                 </IconButton>
+                                <IconButton onClick={() => setShareOpen(true)}>
+                                    <ShareIcon />
+                                </IconButton>
+                                <IconButton onClick={() => setPlaylistDialogOpen(true)}>
+                                    <PlaylistAddIcon />
+                                </IconButton>
                                 {/* tolocaleString( ) used to make numerical value readable */}
                             </Stack>
                         </Stack>
+                        <VideoDescription 
+                            description={videoDetail?.snippet?.description} 
+                            publishedAt={videoDetail?.snippet?.publishedAt} 
+                        />
                         <Comments videoId={id} />
                     </Box>
                 </Box>
@@ -240,6 +257,23 @@ export default function VideoDetail() {
                     <Videos videos={videos} direction='column' />
                 </Box>
             </Stack>
+
+            <ShareDialog
+                open={shareOpen}
+                onClose={() => setShareOpen(false)}
+                videoId={id}
+                videoTitle={title}
+            />
+            <AddToPlaylistDialog
+                open={playlistDialogOpen}
+                onClose={() => setPlaylistDialogOpen(false)}
+                video={{
+                    id: id,
+                    title: title,
+                    thumbnail: videoDetail?.snippet?.thumbnails?.medium?.url,
+                    channelTitle: channelTitle
+                }}
+            />
         </Box>
     )
 }

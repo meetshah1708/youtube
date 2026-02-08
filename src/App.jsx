@@ -18,6 +18,10 @@ import {HistoryProvider} from './contexts/HistoryContext'
 import {History} from "./components/History.jsx";
 import {LikedVideosProvider} from './contexts/LikedVideosContext'
 import {LikedVideos} from "./components/LikedVideos.jsx";
+import {PlaylistProvider} from './contexts/PlaylistContext'
+import {Playlists} from "./components/Playlists.jsx";
+import TrendingFeed from "./components/TrendingFeed.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 
 function App() {
     const theme = useTheme();
@@ -28,6 +32,7 @@ function App() {
             <WatchLaterProvider>
             <HistoryProvider>
             <LikedVideosProvider>
+            <PlaylistProvider>
             <Box sx={{ 
                 bgcolor: theme.palette.background.default,
                 minHeight: '100vh',
@@ -56,12 +61,16 @@ function App() {
                         <Route path="/watch-later" element={<WatchLater />} />
                         <Route path="/history" element={<History />} />
                         <Route path="/liked-videos" element={<LikedVideos />} />
+                        <Route path="/playlists" element={<Playlists />} />
+                        <Route path="/trending" element={<TrendingFeed />} />
 
                         <Route path="/search/:searchTerm" exact element={<SearchFeed />} />
                         <Route path="/channel/:channelId" element={<ChannelDetail />} />
                     </Routes>
                 </BrowserRouter>
             </Box>
+            <ScrollToTop />
+            </PlaylistProvider>
             </LikedVideosProvider>
             </HistoryProvider>
             </WatchLaterProvider>

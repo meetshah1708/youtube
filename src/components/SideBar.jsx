@@ -5,6 +5,9 @@ import { useTheme } from "@mui/material/styles";
 import { categories } from "../assets/youtube";
 import WatchLater from '@mui/icons-material/WatchLater';
 import HistoryIcon from '@mui/icons-material/History';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import PlaylistPlayIcon from '@mui/icons-material/PlaylistPlay';
 import { Link } from 'react-router-dom';
 
 export default function SideBar({ selectedCategory, setSelectedCategory }) {
@@ -42,6 +45,27 @@ export default function SideBar({ selectedCategory, setSelectedCategory }) {
                      {cat.name}
                 </Button>
             ))}
+
+            <Button
+                component={Link}
+                to="/trending"
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    backgroundColor: "transparent",
+                    color: theme.palette.text.primary,
+                    textTransform: "none",
+                    padding: "10px 20px",
+                    "&:hover": {
+                        backgroundColor: theme.palette.primary.main,
+                        color: "#fff"
+                    }
+                }}
+            >
+                <TrendingUpIcon sx={{ mr: 2 }} />
+                Trending
+            </Button>
 
             <Button
                 component={Link}
@@ -83,6 +107,48 @@ export default function SideBar({ selectedCategory, setSelectedCategory }) {
             >
                 <HistoryIcon sx={{ mr: 2 }} />
                 History
+            </Button>
+
+            <Button
+                component={Link}
+                to="/liked-videos"
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    backgroundColor: "transparent",
+                    color: theme.palette.text.primary,
+                    textTransform: "none",
+                    padding: "10px 20px",
+                    "&:hover": {
+                        backgroundColor: theme.palette.primary.main,
+                        color: "#fff"
+                    }
+                }}
+            >
+                <ThumbUpIcon sx={{ mr: 2 }} />
+                Liked Videos
+            </Button>
+
+            <Button
+                component={Link}
+                to="/playlists"
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    backgroundColor: "transparent",
+                    color: theme.palette.text.primary,
+                    textTransform: "none",
+                    padding: "10px 20px",
+                    "&:hover": {
+                        backgroundColor: theme.palette.primary.main,
+                        color: "#fff"
+                    }
+                }}
+            >
+                <PlaylistPlayIcon sx={{ mr: 2 }} />
+                Playlists
             </Button>
 
             <Typography 

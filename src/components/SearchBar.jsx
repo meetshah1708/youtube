@@ -40,6 +40,7 @@ export default function SearchBar() {
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                inputProps={{ 'data-shortcut-search': true }}
             />
             <IconButton 
                 type="submit"

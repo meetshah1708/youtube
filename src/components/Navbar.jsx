@@ -12,12 +12,14 @@ import {
     MenuItem,
     Menu as MuiMenu
 } from "@mui/material";
-import { Menu, YouTube, Brightness4, Brightness7,AccountCircle } from "@mui/icons-material";
+import { Menu, YouTube, Brightness4, Brightness7,AccountCircle, Keyboard } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { useContext, useState } from "react";
 import { ColorModeContext } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import SearchBar from "./SearchBar";
+import KeyboardShortcutsDialog from "./KeyboardShortcutsDialog";
+import useKeyboardShortcuts from "../hooks/useKeyboardShortcuts";
 
 
 function Navbar() {
@@ -28,7 +30,10 @@ function Navbar() {
     const [anchorEl, setAnchorEl] = useState(null);
     
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [shortcutsOpen, setShortcutsOpen] = useState(false);
     const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+
+    useKeyboardShortcuts({ onOpenHelp: () => setShortcutsOpen(true) });
     const handleAccountClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -205,6 +210,14 @@ function Navbar() {
                         >
                             {isDark ? <Brightness7 /> : <Brightness4 />}
                         </IconButton>
+                        <IconButton
+                            onClick={() => setShortcutsOpen(true)}
+                            color="inherit"
+                            aria-label="keyboard shortcuts"
+                            title="Keyboard shortcuts (?)"
+                        >
+                            <Keyboard />
+                        </IconButton>
                     </Box>
                 </Toolbar>
             </AppBar>
@@ -226,6 +239,11 @@ function Navbar() {
                     {drawerContent}
                 </Drawer>
             )}
+
+            <KeyboardShortcutsDialog
+                open={shortcutsOpen}
+                onClose={() => setShortcutsOpen(false)}
+            />
         </>
     );
 }

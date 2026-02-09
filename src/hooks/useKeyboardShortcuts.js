@@ -1,6 +1,5 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useContext } from 'react';
 import { ColorModeContext } from '../contexts/ThemeContext';
 
 /**
@@ -30,7 +29,7 @@ export default function useKeyboardShortcuts({ onOpenHelp } = {}) {
             case '/':
                 e.preventDefault();
                 // Focus the search bar input
-                const searchInput = document.querySelector('input[placeholder="Search..."]');
+                const searchInput = document.querySelector('[data-shortcut-search]');
                 if (searchInput) searchInput.focus();
                 break;
             case 'h':

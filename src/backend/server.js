@@ -298,7 +298,7 @@ app.get('/api/user-data', auth, async (req, res) => {
 // Watch Later endpoints
 app.post('/api/watch-later', auth, async (req, res) => {
     try {
-        const { id, title, thumbnail, channelTitle } = req.body;
+        const { id, title, thumbnail, channelTitle, addedAt } = req.body;
         const user = await User.findById(req.user._id);
         
         // Check if video already exists
@@ -307,7 +307,13 @@ app.post('/api/watch-later', auth, async (req, res) => {
             return res.status(400).json({ error: 'Video already in watch later' });
         }
         
-        user.watchLater.push({ id, title, thumbnail, channelTitle, addedAt: new Date() });
+        user.watchLater.push({ 
+            id, 
+            title, 
+            thumbnail, 
+            channelTitle, 
+            addedAt: addedAt ? new Date(addedAt) : new Date() 
+        });
         await user.save();
         
         res.json({ message: 'Video added to watch later', watchLater: user.watchLater });
@@ -333,14 +339,20 @@ app.delete('/api/watch-later/:videoId', auth, async (req, res) => {
 // History endpoints
 app.post('/api/history', auth, async (req, res) => {
     try {
-        const { id, title, thumbnail, channelTitle } = req.body;
+        const { id, title, thumbnail, channelTitle, watchedAt } = req.body;
         const user = await User.findById(req.user._id);
         
         // Remove if already exists (will be re-added at the top)
         user.history = user.history.filter(item => item.id !== id);
         
-        // Add to the beginning
-        user.history.unshift({ id, title, thumbnail, channelTitle, watchedAt: new Date() });
+        // Add to the beginning with client or server timestamp
+        user.history.unshift({ 
+            id, 
+            title, 
+            thumbnail, 
+            channelTitle, 
+            watchedAt: watchedAt ? new Date(watchedAt) : new Date() 
+        });
         
         // Keep only the last 100 items
         user.history = user.history.slice(0, 100);
@@ -383,7 +395,7 @@ app.delete('/api/history', auth, async (req, res) => {
 // Liked Videos endpoints
 app.post('/api/liked-videos', auth, async (req, res) => {
     try {
-        const { id, title, thumbnail, channelTitle } = req.body;
+        const { id, title, thumbnail, channelTitle, likedAt } = req.body;
         const user = await User.findById(req.user._id);
         
         // Check if video already exists
@@ -392,7 +404,13 @@ app.post('/api/liked-videos', auth, async (req, res) => {
             return res.status(400).json({ error: 'Video already liked' });
         }
         
-        user.likedVideos.unshift({ id, title, thumbnail, channelTitle, likedAt: new Date() });
+        user.likedVideos.unshift({ 
+            id, 
+            title, 
+            thumbnail, 
+            channelTitle, 
+            likedAt: likedAt ? new Date(likedAt) : new Date() 
+        });
         await user.save();
         
         res.json({ message: 'Video added to liked videos', likedVideos: user.likedVideos });

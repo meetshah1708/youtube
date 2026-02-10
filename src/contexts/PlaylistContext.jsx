@@ -23,6 +23,7 @@ export function PlaylistProvider({ children }) {
         if (user) {
             loadFromBackend();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
 
     // Keep localStorage in sync as fallback

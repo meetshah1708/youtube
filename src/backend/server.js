@@ -4,9 +4,27 @@ const helmet = require('helmet');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const app = express();
+
+// Rate limiting configurations
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Limit each IP to 5 requests per windowMs for auth endpoints
+    message: 'Too many authentication attempts, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs for API endpoints
+    message: 'Too many requests, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
 
 // Use Helmet to set Content Security Policy
 app.use(
@@ -161,7 +179,7 @@ const auth = async (req, res, next) => {
 
 
 // Signup Route
-app.post(`/api/signup`, async (req, res) => {
+app.post(`/api/signup`, authLimiter, async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
@@ -217,7 +235,7 @@ app.post(`/api/signup`, async (req, res) => {
 });
 
 // Login Route
-app.post(`/api/login`, async (req, res) => {
+app.post(`/api/login`, authLimiter, async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -280,7 +298,7 @@ app.get('/health', (req, res) => {
 // =========================
 
 // Get user data (watch later, history, liked videos, playlists)
-app.get('/api/user-data', auth, async (req, res) => {
+app.get('/api/user-data', apiLimiter, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
         res.json({
@@ -296,7 +314,7 @@ app.get('/api/user-data', auth, async (req, res) => {
 });
 
 // Watch Later endpoints
-app.post('/api/watch-later', auth, async (req, res) => {
+app.post('/api/watch-later', apiLimiter, auth, async (req, res) => {
     try {
         const { id, title, thumbnail, channelTitle, addedAt } = req.body;
         const user = await User.findById(req.user._id);
@@ -323,7 +341,7 @@ app.post('/api/watch-later', auth, async (req, res) => {
     }
 });
 
-app.delete('/api/watch-later/:videoId', auth, async (req, res) => {
+app.delete('/api/watch-later/:videoId', apiLimiter, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
         user.watchLater = user.watchLater.filter(item => item.id !== req.params.videoId);
@@ -337,7 +355,7 @@ app.delete('/api/watch-later/:videoId', auth, async (req, res) => {
 });
 
 // History endpoints
-app.post('/api/history', auth, async (req, res) => {
+app.post('/api/history', apiLimiter, auth, async (req, res) => {
     try {
         const { id, title, thumbnail, channelTitle, watchedAt } = req.body;
         const user = await User.findById(req.user._id);
@@ -366,7 +384,7 @@ app.post('/api/history', auth, async (req, res) => {
     }
 });
 
-app.delete('/api/history/:videoId', auth, async (req, res) => {
+app.delete('/api/history/:videoId', apiLimiter, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
         user.history = user.history.filter(item => item.id !== req.params.videoId);
@@ -379,7 +397,7 @@ app.delete('/api/history/:videoId', auth, async (req, res) => {
     }
 });
 
-app.delete('/api/history', auth, async (req, res) => {
+app.delete('/api/history', apiLimiter, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
         user.history = [];
@@ -393,7 +411,7 @@ app.delete('/api/history', auth, async (req, res) => {
 });
 
 // Liked Videos endpoints
-app.post('/api/liked-videos', auth, async (req, res) => {
+app.post('/api/liked-videos', apiLimiter, auth, async (req, res) => {
     try {
         const { id, title, thumbnail, channelTitle, likedAt } = req.body;
         const user = await User.findById(req.user._id);
@@ -420,7 +438,7 @@ app.post('/api/liked-videos', auth, async (req, res) => {
     }
 });
 
-app.delete('/api/liked-videos/:videoId', auth, async (req, res) => {
+app.delete('/api/liked-videos/:videoId', apiLimiter, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
         user.likedVideos = user.likedVideos.filter(item => item.id !== req.params.videoId);
@@ -434,7 +452,7 @@ app.delete('/api/liked-videos/:videoId', auth, async (req, res) => {
 });
 
 // Playlists endpoints
-app.get('/api/playlists', auth, async (req, res) => {
+app.get('/api/playlists', apiLimiter, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
         res.json({ playlists: user.playlists || [] });
@@ -444,7 +462,7 @@ app.get('/api/playlists', auth, async (req, res) => {
     }
 });
 
-app.post('/api/playlists', auth, async (req, res) => {
+app.post('/api/playlists', apiLimiter, auth, async (req, res) => {
     try {
         const { name, description } = req.body;
         const user = await User.findById(req.user._id);
@@ -467,7 +485,7 @@ app.post('/api/playlists', auth, async (req, res) => {
     }
 });
 
-app.delete('/api/playlists/:playlistId', auth, async (req, res) => {
+app.delete('/api/playlists/:playlistId', apiLimiter, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
         user.playlists = user.playlists.filter(p => p.id !== req.params.playlistId);
@@ -480,7 +498,7 @@ app.delete('/api/playlists/:playlistId', auth, async (req, res) => {
     }
 });
 
-app.post('/api/playlists/:playlistId/videos', auth, async (req, res) => {
+app.post('/api/playlists/:playlistId/videos', apiLimiter, auth, async (req, res) => {
     try {
         const { id, title, thumbnail, channelTitle } = req.body;
         const user = await User.findById(req.user._id);
@@ -506,7 +524,7 @@ app.post('/api/playlists/:playlistId/videos', auth, async (req, res) => {
     }
 });
 
-app.delete('/api/playlists/:playlistId/videos/:videoId', auth, async (req, res) => {
+app.delete('/api/playlists/:playlistId/videos/:videoId', apiLimiter, auth, async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
         

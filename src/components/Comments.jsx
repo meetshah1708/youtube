@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { 
     Box, 
     Typography, 
@@ -362,11 +362,15 @@ export default function Comments({ videoId }) {
     const comments = commentsByVideo[videoId] || [];
     const isLoading = loading[videoId];
 
-    useEffect(() => {
+    const loadComments = useCallback(() => {
         if (videoId) {
             fetchComments(videoId);
         }
-    }, [videoId]);
+    }, [videoId, fetchComments]);
+
+    useEffect(() => {
+        loadComments();
+    }, [loadComments]);
 
     const handleAddComment = async () => {
         if (!newComment.trim()) return;

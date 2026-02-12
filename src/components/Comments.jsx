@@ -426,7 +426,8 @@ export default function Comments({ videoId }) {
         if (videoId) {
             fetchComments(videoId);
         }
-    }, [videoId, fetchComments]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [videoId]);
 
     useEffect(() => {
         loadComments();

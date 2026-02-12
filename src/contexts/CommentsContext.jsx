@@ -183,8 +183,8 @@ export const CommentsProvider = ({ children }) => {
                         if (comment.id === commentId || comment._id === commentId) {
                             return { 
                                 ...comment, 
-                                likes: new Array(data.likesCount).fill(null),
-                                dislikes: new Array(data.dislikesCount).fill(null)
+                                likesCount: data.likesCount,
+                                dislikesCount: data.dislikesCount
                             };
                         }
                         if (comment.replies) {
@@ -194,8 +194,8 @@ export const CommentsProvider = ({ children }) => {
                                     reply.id === commentId || reply._id === commentId
                                         ? { 
                                             ...reply, 
-                                            likes: new Array(data.likesCount).fill(null),
-                                            dislikes: new Array(data.dislikesCount).fill(null)
+                                            likesCount: data.likesCount,
+                                            dislikesCount: data.dislikesCount
                                         }
                                         : reply
                                 )
@@ -233,8 +233,8 @@ export const CommentsProvider = ({ children }) => {
                         if (comment.id === commentId || comment._id === commentId) {
                             return { 
                                 ...comment, 
-                                likes: new Array(data.likesCount).fill(null),
-                                dislikes: new Array(data.dislikesCount).fill(null)
+                                likesCount: data.likesCount,
+                                dislikesCount: data.dislikesCount
                             };
                         }
                         if (comment.replies) {
@@ -244,8 +244,8 @@ export const CommentsProvider = ({ children }) => {
                                     reply.id === commentId || reply._id === commentId
                                         ? { 
                                             ...reply, 
-                                            likes: new Array(data.likesCount).fill(null),
-                                            dislikes: new Array(data.dislikesCount).fill(null)
+                                            likesCount: data.likesCount,
+                                            dislikesCount: data.dislikesCount
                                         }
                                         : reply
                                 )

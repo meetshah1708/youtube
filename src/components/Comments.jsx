@@ -48,17 +48,18 @@ const timeAgo = (date) => {
 // Individual Comment Component
 function CommentItem({ comment, videoId, isReply = false }) {
     const { user } = useAuth();
-    const { updateComment, deleteComment, likeComment, dislikeComment, addComment } = useComments();
+    const { updateComment, deleteComment, likeComment, dislikeComment, addComment, error: contextError } = useComments();
     const [anchorEl, setAnchorEl] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editText, setEditText] = useState(comment.text);
     const [showReplyBox, setShowReplyBox] = useState(false);
     const [replyText, setReplyText] = useState("");
     const [actionLoading, setActionLoading] = useState(false);
+    const [localError, setLocalError] = useState(null);
 
     const isOwner = user && comment.userId === user.id;
-    const likesCount = comment.likes?.length || 0;
-    const dislikesCount = comment.dislikes?.length || 0;
+    const likesCount = comment.likesCount || comment.likes?.length || 0;
+    const dislikesCount = comment.dislikesCount || comment.dislikes?.length || 0;
 
     const handleMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -108,9 +109,10 @@ function CommentItem({ comment, videoId, isReply = false }) {
 
     const handleLike = async () => {
         if (!user) {
-            alert('Please login to like comments');
+            setLocalError('Please login to like comments');
             return;
         }
+        setLocalError(null);
         try {
             await likeComment(videoId, comment.id || comment._id);
         } catch (err) {
@@ -120,9 +122,10 @@ function CommentItem({ comment, videoId, isReply = false }) {
 
     const handleDislike = async () => {
         if (!user) {
-            alert('Please login to dislike comments');
+            setLocalError('Please login to dislike comments');
             return;
         }
+        setLocalError(null);
         try {
             await dislikeComment(videoId, comment.id || comment._id);
         } catch (err) {
@@ -132,9 +135,10 @@ function CommentItem({ comment, videoId, isReply = false }) {
 
     const handleReply = () => {
         if (!user) {
-            alert('Please login to reply');
+            setLocalError('Please login to reply');
             return;
         }
+        setLocalError(null);
         setShowReplyBox(!showReplyBox);
     };
 
@@ -155,6 +159,11 @@ function CommentItem({ comment, videoId, isReply = false }) {
 
     return (
         <Box mb={2} ml={isReply ? 4 : 0}>
+            {(localError || contextError) && (
+                <Alert severity="warning" sx={{ mb: 1 }} onClose={() => setLocalError(null)}>
+                    {localError || contextError}
+                </Alert>
+            )}
             <Box display="flex" alignItems="flex-start">
                 <Avatar sx={{ bgcolor: '#fc1503', mr: 1.5 }}>
                     {comment.username?.charAt(0).toUpperCase() || 'U'}
@@ -358,6 +367,7 @@ export default function Comments({ videoId }) {
     const { commentsByVideo, loading, error, fetchComments, addComment } = useComments();
     const [newComment, setNewComment] = useState("");
     const [postLoading, setPostLoading] = useState(false);
+    const [localError, setLocalError] = useState(null);
 
     const comments = commentsByVideo[videoId] || [];
     const isLoading = loading[videoId];
@@ -375,9 +385,10 @@ export default function Comments({ videoId }) {
     const handleAddComment = async () => {
         if (!newComment.trim()) return;
         if (!user) {
-            alert('Please login to comment');
+            setLocalError('Please login to comment');
             return;
         }
+        setLocalError(null);
 
         try {
             setPostLoading(true);
@@ -403,9 +414,9 @@ export default function Comments({ videoId }) {
                 {comments.length} Comment{comments.length !== 1 ? 's' : ''}
             </Typography>
 
-            {error && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    {error}
+            {(error || localError) && (
+                <Alert severity="error" sx={{ mb: 2 }} onClose={() => setLocalError(null)}>
+                    {localError || error}
                 </Alert>
             )}
 

@@ -151,6 +151,64 @@ userSchema.index({ email: 1, username: 1 });
 
 const User = mongoose.model('User', userSchema);
 
+// Comment Schema
+const commentSchema = new mongoose.Schema({
+    videoId: {
+        type: String,
+        required: true,
+        index: true
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        index: true
+    },
+    username: {
+        type: String,
+        required: true
+    },
+    text: {
+        type: String,
+        required: true,
+        trim: true,
+        maxlength: 1000
+    },
+    parentCommentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Comment',
+        default: null,
+        index: true
+    },
+    likes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    dislikes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    isEdited: {
+        type: Boolean,
+        default: false
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+        index: true
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
+// Create compound index for faster video comment lookups
+commentSchema.index({ videoId: 1, createdAt: -1 });
+commentSchema.index({ videoId: 1, parentCommentId: 1 });
+
+const Comment = mongoose.model('Comment', commentSchema);
+
 // JWT Secret
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -540,6 +598,235 @@ app.delete('/api/playlists/:playlistId/videos/:videoId', apiLimiter, auth, async
     } catch (error) {
         console.error('Error removing video from playlist:', error);
         res.status(500).json({ error: 'Error removing video from playlist' });
+    }
+});
+
+// Comments endpoints
+// Get all comments for a video
+app.get('/api/comments/:videoId', async (req, res) => {
+    try {
+        const { videoId } = req.params;
+        
+        // Get top-level comments (no parent) and populate replies
+        const comments = await Comment.find({ 
+            videoId, 
+            parentCommentId: null 
+        })
+        .sort({ createdAt: -1 })
+        .lean();
+        
+        // Get all replies for these comments
+        const commentIds = comments.map(c => c._id);
+        const replies = await Comment.find({ 
+            parentCommentId: { $in: commentIds }
+        })
+        .sort({ createdAt: 1 })
+        .lean();
+        
+        // Organize replies under their parent comments
+        const commentsWithReplies = comments.map(comment => ({
+            ...comment,
+            id: comment._id.toString(),
+            replies: replies
+                .filter(r => r.parentCommentId.toString() === comment._id.toString())
+                .map(r => ({ ...r, id: r._id.toString() }))
+        }));
+        
+        res.json({ comments: commentsWithReplies });
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        res.status(500).json({ error: 'Error fetching comments' });
+    }
+});
+
+// Add a comment
+app.post('/api/comments', apiLimiter, auth, async (req, res) => {
+    try {
+        const { videoId, text, parentCommentId } = req.body;
+        
+        // Validate input
+        if (!videoId || !text || text.trim().length === 0) {
+            return res.status(400).json({ error: 'Video ID and comment text are required' });
+        }
+        
+        if (text.length > 1000) {
+            return res.status(400).json({ error: 'Comment text must be 1000 characters or less' });
+        }
+        
+        // If this is a reply, verify parent comment exists
+        if (parentCommentId) {
+            const parentComment = await Comment.findById(parentCommentId);
+            if (!parentComment) {
+                return res.status(404).json({ error: 'Parent comment not found' });
+            }
+        }
+        
+        const comment = new Comment({
+            videoId,
+            userId: req.user._id,
+            username: req.user.username,
+            text: text.trim(),
+            parentCommentId: parentCommentId || null
+        });
+        
+        await comment.save();
+        
+        const commentObj = comment.toObject();
+        commentObj.id = commentObj._id.toString();
+        
+        res.status(201).json({ message: 'Comment added', comment: commentObj });
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        res.status(500).json({ error: 'Error adding comment' });
+    }
+});
+
+// Update a comment
+app.put('/api/comments/:commentId', apiLimiter, auth, async (req, res) => {
+    try {
+        const { commentId } = req.params;
+        const { text } = req.body;
+        
+        if (!text || text.trim().length === 0) {
+            return res.status(400).json({ error: 'Comment text is required' });
+        }
+        
+        if (text.length > 1000) {
+            return res.status(400).json({ error: 'Comment text must be 1000 characters or less' });
+        }
+        
+        const comment = await Comment.findById(commentId);
+        
+        if (!comment) {
+            return res.status(404).json({ error: 'Comment not found' });
+        }
+        
+        // Only the comment author can edit
+        if (comment.userId.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ error: 'Not authorized to edit this comment' });
+        }
+        
+        comment.text = text.trim();
+        comment.isEdited = true;
+        comment.updatedAt = new Date();
+        await comment.save();
+        
+        const commentObj = comment.toObject();
+        commentObj.id = commentObj._id.toString();
+        
+        res.json({ message: 'Comment updated', comment: commentObj });
+    } catch (error) {
+        console.error('Error updating comment:', error);
+        res.status(500).json({ error: 'Error updating comment' });
+    }
+});
+
+// Delete a comment
+app.delete('/api/comments/:commentId', apiLimiter, auth, async (req, res) => {
+    try {
+        const { commentId } = req.params;
+        
+        const comment = await Comment.findById(commentId);
+        
+        if (!comment) {
+            return res.status(404).json({ error: 'Comment not found' });
+        }
+        
+        // Only the comment author can delete
+        if (comment.userId.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ error: 'Not authorized to delete this comment' });
+        }
+        
+        // Delete the comment and all its replies
+        await Comment.deleteMany({
+            $or: [
+                { _id: commentId },
+                { parentCommentId: commentId }
+            ]
+        });
+        
+        res.json({ message: 'Comment deleted' });
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        res.status(500).json({ error: 'Error deleting comment' });
+    }
+});
+
+// Like a comment
+app.post('/api/comments/:commentId/like', apiLimiter, auth, async (req, res) => {
+    try {
+        const { commentId } = req.params;
+        const comment = await Comment.findById(commentId);
+        
+        if (!comment) {
+            return res.status(404).json({ error: 'Comment not found' });
+        }
+        
+        const userId = req.user._id;
+        const hasLiked = comment.likes.some(id => id.toString() === userId.toString());
+        const hasDisliked = comment.dislikes.some(id => id.toString() === userId.toString());
+        
+        // Remove from dislikes if disliked
+        if (hasDisliked) {
+            comment.dislikes = comment.dislikes.filter(id => id.toString() !== userId.toString());
+        }
+        
+        // Toggle like
+        if (hasLiked) {
+            comment.likes = comment.likes.filter(id => id.toString() !== userId.toString());
+        } else {
+            comment.likes.push(userId);
+        }
+        
+        await comment.save();
+        
+        res.json({ 
+            message: hasLiked ? 'Like removed' : 'Comment liked',
+            likesCount: comment.likes.length,
+            dislikesCount: comment.dislikes.length
+        });
+    } catch (error) {
+        console.error('Error liking comment:', error);
+        res.status(500).json({ error: 'Error liking comment' });
+    }
+});
+
+// Dislike a comment
+app.post('/api/comments/:commentId/dislike', apiLimiter, auth, async (req, res) => {
+    try {
+        const { commentId } = req.params;
+        const comment = await Comment.findById(commentId);
+        
+        if (!comment) {
+            return res.status(404).json({ error: 'Comment not found' });
+        }
+        
+        const userId = req.user._id;
+        const hasLiked = comment.likes.some(id => id.toString() === userId.toString());
+        const hasDisliked = comment.dislikes.some(id => id.toString() === userId.toString());
+        
+        // Remove from likes if liked
+        if (hasLiked) {
+            comment.likes = comment.likes.filter(id => id.toString() !== userId.toString());
+        }
+        
+        // Toggle dislike
+        if (hasDisliked) {
+            comment.dislikes = comment.dislikes.filter(id => id.toString() !== userId.toString());
+        } else {
+            comment.dislikes.push(userId);
+        }
+        
+        await comment.save();
+        
+        res.json({ 
+            message: hasDisliked ? 'Dislike removed' : 'Comment disliked',
+            likesCount: comment.likes.length,
+            dislikesCount: comment.dislikes.length
+        });
+    } catch (error) {
+        console.error('Error disliking comment:', error);
+        res.status(500).json({ error: 'Error disliking comment' });
     }
 });
 

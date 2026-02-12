@@ -20,6 +20,7 @@ import {LikedVideosProvider} from './contexts/LikedVideosContext'
 import {LikedVideos} from "./components/LikedVideos.jsx";
 import {PlaylistProvider} from './contexts/PlaylistContext'
 import {Playlists} from "./components/Playlists.jsx";
+import {CommentsProvider} from './contexts/CommentsContext'
 import TrendingFeed from "./components/TrendingFeed.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 
@@ -33,6 +34,7 @@ function App() {
             <HistoryProvider>
             <LikedVideosProvider>
             <PlaylistProvider>
+            <CommentsProvider>
             <Box sx={{ 
                 bgcolor: theme.palette.background.default,
                 minHeight: '100vh',
@@ -70,6 +72,7 @@ function App() {
                 </BrowserRouter>
             </Box>
             <ScrollToTop />
+            </CommentsProvider>
             </PlaylistProvider>
             </LikedVideosProvider>
             </HistoryProvider>

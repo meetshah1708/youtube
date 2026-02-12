@@ -86,5 +86,44 @@ export const userDataAPI = {
   removeVideoFromPlaylist: async (playlistId, videoId) => {
     const response = await axios.delete(`${API_URL}/playlists/${playlistId}/videos/${videoId}`, getAuthHeaders());
     return response.data;
+  },
+
+  // Comments
+  getComments: async (videoId) => {
+    const response = await axios.get(`${API_URL}/comments/${videoId}`);
+    return response.data;
+  },
+  
+  addComment: async (videoId, text, parentCommentId = null) => {
+    const response = await axios.post(
+      `${API_URL}/comments`, 
+      { videoId, text, parentCommentId }, 
+      getAuthHeaders()
+    );
+    return response.data;
+  },
+  
+  updateComment: async (commentId, text) => {
+    const response = await axios.put(
+      `${API_URL}/comments/${commentId}`, 
+      { text }, 
+      getAuthHeaders()
+    );
+    return response.data;
+  },
+  
+  deleteComment: async (commentId) => {
+    const response = await axios.delete(`${API_URL}/comments/${commentId}`, getAuthHeaders());
+    return response.data;
+  },
+  
+  likeComment: async (commentId) => {
+    const response = await axios.post(`${API_URL}/comments/${commentId}/like`, {}, getAuthHeaders());
+    return response.data;
+  },
+  
+  dislikeComment: async (commentId) => {
+    const response = await axios.post(`${API_URL}/comments/${commentId}/dislike`, {}, getAuthHeaders());
+    return response.data;
   }
 };

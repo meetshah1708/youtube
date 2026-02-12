@@ -603,7 +603,7 @@ app.delete('/api/playlists/:playlistId/videos/:videoId', apiLimiter, auth, async
 
 // Comments endpoints
 // Get all comments for a video
-app.get('/api/comments/:videoId', async (req, res) => {
+app.get('/api/comments/:videoId', apiLimiter, async (req, res) => {
     try {
         const { videoId } = req.params;
         

@@ -627,9 +627,16 @@ app.get('/api/comments/:videoId', apiLimiter, async (req, res) => {
         const commentsWithReplies = comments.map(comment => ({
             ...comment,
             id: comment._id.toString(),
+            likesCount: comment.likes?.length || 0,
+            dislikesCount: comment.dislikes?.length || 0,
             replies: replies
                 .filter(r => r.parentCommentId.toString() === comment._id.toString())
-                .map(r => ({ ...r, id: r._id.toString() }))
+                .map(r => ({ 
+                    ...r, 
+                    id: r._id.toString(),
+                    likesCount: r.likes?.length || 0,
+                    dislikesCount: r.dislikes?.length || 0
+                }))
         }));
         
         res.json({ comments: commentsWithReplies });

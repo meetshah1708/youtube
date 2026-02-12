@@ -11,7 +11,12 @@ import {
     CircularProgress,
     Alert,
     Collapse,
-    Divider
+    Divider,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions
 } from "@mui/material";
 import PropTypes from "prop-types";
 import { useComments } from '../contexts/CommentsContext';
@@ -56,6 +61,7 @@ function CommentItem({ comment, videoId, isReply = false }) {
     const [replyText, setReplyText] = useState("");
     const [actionLoading, setActionLoading] = useState(false);
     const [localError, setLocalError] = useState(null);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
     const isOwner = user && comment.userId === user.id;
     const likesCount = comment.likesCount || comment.likes?.length || 0;
@@ -94,17 +100,24 @@ function CommentItem({ comment, videoId, isReply = false }) {
     };
 
     const handleDelete = async () => {
-        if (window.confirm('Are you sure you want to delete this comment?')) {
-            try {
-                setActionLoading(true);
-                await deleteComment(videoId, comment.id || comment._id);
-            } catch (err) {
-                console.error('Failed to delete comment:', err);
-            } finally {
-                setActionLoading(false);
-            }
-        }
+        setDeleteDialogOpen(true);
         handleMenuClose();
+    };
+
+    const confirmDelete = async () => {
+        try {
+            setActionLoading(true);
+            await deleteComment(videoId, comment.id || comment._id);
+            setDeleteDialogOpen(false);
+        } catch (err) {
+            console.error('Failed to delete comment:', err);
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const cancelDelete = () => {
+        setDeleteDialogOpen(false);
     };
 
     const handleLike = async () => {
@@ -351,6 +364,43 @@ function CommentItem({ comment, videoId, isReply = false }) {
                 <MenuItem onClick={handleEdit}>Edit</MenuItem>
                 <MenuItem onClick={handleDelete}>Delete</MenuItem>
             </Menu>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog
+                open={deleteDialogOpen}
+                onClose={cancelDelete}
+                PaperProps={{
+                    sx: {
+                        bgcolor: '#2a2a2a',
+                        color: '#fff'
+                    }
+                }}
+            >
+                <DialogTitle>Delete Comment</DialogTitle>
+                <DialogContent>
+                    <DialogContentText sx={{ color: '#ccc' }}>
+                        Are you sure you want to delete this comment? This action cannot be undone.
+                        {comment.replies && comment.replies.length > 0 && (
+                            <Box component="span" display="block" mt={1} color="warning.main">
+                                This will also delete {comment.replies.length} {comment.replies.length === 1 ? 'reply' : 'replies'}.
+                            </Box>
+                        )}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={cancelDelete} disabled={actionLoading}>
+                        Cancel
+                    </Button>
+                    <Button 
+                        onClick={confirmDelete} 
+                        color="error" 
+                        variant="contained"
+                        disabled={actionLoading}
+                    >
+                        {actionLoading ? <CircularProgress size={20} /> : 'Delete'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }

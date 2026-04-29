@@ -29,7 +29,6 @@ export default function VideoDetail() {
     const [ relatedError, setRelatedError] = useState(null);
     const theme = useTheme();
     const params = useParams();//to get the video id
-    // console.log(params)
     const id = params.videoId
     const { watchLaterItems, addToWatchLater, removeFromWatchLater } = useWatchLater();
     const { addToHistory } = useHistory();
@@ -52,7 +51,6 @@ export default function VideoDetail() {
                 }
                 const response = await fetch(`https://youtube-v311.p.rapidapi.com/videos?part=snippet,statistics,contentDetails&id=${id}`, options)
                 const data = await response.json()
-                // console.log(data?.items)
                 setVideoDetail(data?.items[ 0 ])
 
                 try {

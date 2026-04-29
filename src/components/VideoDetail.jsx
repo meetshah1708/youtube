@@ -20,7 +20,7 @@ import AddToPlaylistDialog from './AddToPlaylistDialog';
 import VideoDescription from './VideoDescription';
 const key = import.meta.env.VITE_RAPID_API_YOUTUBE_KEY
 
-
+const relatedVideosCache = {};
 
 export default function VideoDetail() {
     const [ videoDetail, setVideoDetail ] = useState(null)
@@ -56,19 +56,24 @@ export default function VideoDetail() {
                 setVideoDetail(data?.items[ 0 ])
 
                 try {
-                    const relatedResponse = await fetch(`https://youtube-v311.p.rapidapi.com/search?part=snippet&relatedToVideoId=${id}&type=video`, options);
-                    const relatedData = await relatedResponse.json();
-                    // Normalize related videos data
-                    const normalized = (relatedData.items || []).map(item => {
-                        if (typeof item.id === 'string') {
-                            return { ...item, id: { videoId: item.id } };
-                        } else if (item.id && item.id.videoId) {
-                            return item;
-                        } else {
-                            return item;
-                        }
-                    });
-                    setVideos(normalized);
+                    if (relatedVideosCache[id]) {
+                        setVideos(relatedVideosCache[id]);
+                    } else {
+                        const relatedResponse = await fetch(`https://youtube-v311.p.rapidapi.com/search?part=snippet&relatedToVideoId=${id}&type=video`, options);
+                        const relatedData = await relatedResponse.json();
+                        // Normalize related videos data
+                        const normalized = (relatedData.items || []).map(item => {
+                            if (typeof item.id === 'string') {
+                                return { ...item, id: { videoId: item.id } };
+                            } else if (item.id && item.id.videoId) {
+                                return item;
+                            } else {
+                                return item;
+                            }
+                        });
+                        relatedVideosCache[id] = normalized;
+                        setVideos(normalized);
+                    }
                 } catch (err) {
                     setRelatedError('Failed to load related videos. Please try again later.');
                     setVideos([]); // Always set to [] on error

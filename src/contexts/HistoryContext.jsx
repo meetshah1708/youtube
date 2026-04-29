@@ -23,7 +23,7 @@ export function HistoryProvider({ children }) {
         if (user) {
             loadFromBackend();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [user]);
 
     // Keep localStorage in sync as fallback
@@ -65,6 +65,8 @@ export function HistoryProvider({ children }) {
                 await userDataAPI.addToHistory(newItem);
             } catch (error) {
                 console.error('Error adding to history:', error);
+                // Revert on error
+                setHistoryItems(prev => prev.filter(item => item.id !== video.id));
             }
         }
     };

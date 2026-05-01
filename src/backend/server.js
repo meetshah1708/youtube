@@ -72,17 +72,23 @@ if (!process.env.JWT_SECRET) {
 
 // MongoDB Connection with strictQuery setting and optimized pool
 mongoose.set('strictQuery', false);
-mongoose.connect(process.env.MONGODB_URI, {
-    serverSelectionTimeoutMS: 5000,
-    maxPoolSize: 10,
-    minPoolSize: 2,
-    socketTimeoutMS: 45000,
-})
-.then(() => console.log('MongoDB connected'))
-.catch(err => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1);
-});
+
+const connectWithRetry = () => {
+    mongoose.connect(process.env.MONGODB_URI, {
+        serverSelectionTimeoutMS: 5000,
+        maxPoolSize: 10,
+        minPoolSize: 2,
+        socketTimeoutMS: 45000,
+    })
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => {
+        console.error('MongoDB connection error:', err);
+        console.log('Retrying connection in 5 seconds...');
+        setTimeout(connectWithRetry, 5000);
+    });
+};
+
+connectWithRetry();
 
 // User Schema
 const userSchema = new mongoose.Schema({
